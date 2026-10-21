@@ -6,6 +6,7 @@
 - Actualmente contiene documentación de contexto para agentes de IA; todavía no contiene código de aplicación ni infraestructura.
 - Está destinado a un proyecto serverless en AWS que utilizará Serverless Framework y el fichero `serverless.yml`.
 - `serverless.yml` aún no existe.
+- Hay 149 skills principales de AWS instaladas localmente y registradas en `skills-lock.json`; el [catálogo](../skills/README.md) permite descubrirlas desde la entrada común. Su disponibilidad no fija la arquitectura del proyecto.
 
 ## Pendiente de definición
 
@@ -19,4 +20,4 @@
 
 Actualiza este documento al confirmar hechos o resolver aspectos pendientes. Si un tema requiere más detalle, crea un documento con nombre descriptivo en este directorio y enlázalo aquí. Registra los requisitos en [specs](../specs/README.md) y las decisiones técnicas con sus motivos en [decisions](../decisions/README.md).
 
-No hay documentos adicionales de contexto por ahora.
+- [Auditoría de acceso a skills](skills-audit.md): comprobaciones, resultados y límites de accesibilidad.

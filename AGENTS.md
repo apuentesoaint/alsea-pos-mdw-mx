@@ -7,7 +7,7 @@ Este archivo es la entrada común al contexto del repositorio. Aplica a todo el 
 1. Lee el [índice de contexto](.agents/README.md).
 2. Lee el [contexto del proyecto](.agents/context/README.md) para conocer los hechos confirmados y las definiciones pendientes.
 3. Consulta los índices de [especificaciones](.agents/specs/README.md) y [decisiones](.agents/decisions/README.md), y lee los documentos aplicables a la tarea.
-4. Consulta los índices de [skills](.agents/skills/README.md) y [referencias](.agents/references/README.md). Carga únicamente las skills y referencias pertinentes.
+4. Consulta los índices de [skills](.agents/skills/README.md) y [referencias](.agents/references/README.md). Selecciona las skills por su nombre y descripción en el catálogo, abre su `SKILL.md` y carga únicamente las skills y referencias pertinentes. Si el agente no admite skills nativas, lee y sigue esos archivos manualmente; resuelve sus recursos relativos desde el directorio de cada skill.
 
 Si no puedes acceder a un archivo necesario, indica qué contexto falta antes de asumir su contenido.
 
