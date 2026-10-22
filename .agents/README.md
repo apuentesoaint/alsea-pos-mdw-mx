@@ -21,3 +21,5 @@ La entrada común es [AGENTS.md](../AGENTS.md). Este directorio organiza el cont
 Este directorio no garantiza descubrimiento automático ni ejecución de skills en todas las herramientas. Para agentes sin soporte específico, sigue manualmente los enlaces desde `AGENTS.md`.
 
 La ejecución del plan de saneamiento y HTTP se registra en [dependencias](../docs/dependency-remediation.md) y [paridad HTTP](../docs/http-parity.md); sus bloqueos no quedan aprobados por superar las pruebas funcionales.
+
+Antes de modificar o construir funcionalidades, consultar la [guía de continuidad de desarrollo](context/development-handoff.md). Reúne los acuerdos de este chat, puntos de entrada del código, pruebas pertinentes y límites de la evidencia, sin cambiar las decisiones aceptadas.

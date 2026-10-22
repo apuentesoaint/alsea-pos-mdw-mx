@@ -1,5 +1,7 @@
 # Contexto del proyecto
 
+Para modificar o ampliar funcionalidades, leer también la [guía de continuidad de desarrollo](development-handoff.md): requisitos del usuario, mapa de código/pruebas, particularidades HTTP, comandos y bloqueos. Última actualización de contexto: 2026-10-22; los resultados registrados corresponden a ejecuciones anteriores, no a una validación repetida por actualizar documentación.
+
 ## Hechos confirmados
 
 - El repositorio se llama `prj-cuponera-back-mdw-sls`.
@@ -18,11 +20,18 @@
 - Validación contra entorno de referencia existente o fixtures aprobados, integraciones y JWT reales, despliegue y carga en qa, alarmas y recuperación.
 - Canal de notificaciones y responsables de conciliación de canjes inciertos y corte.
 
+## Bloqueos técnicos abiertos
+
+- Cerrar los 15 avisos registrados de herramientas: tres causas raíz, sin excepciones de seguridad aprobadas. Los conteos deben renovarse al retomar el saneamiento; ver [dependencias](../../docs/dependency-remediation.md).
+- Certificar las variantes HTTP pendientes sin ejecutar Java ni cambiar contratos implícitamente; ver [HTTP](../../docs/http-parity.md).
+- No confundir verify funcional con auditoría completa ni empaquetado local con despliegue: la aceptación productiva continúa bloqueada.
+
 ## Entrada técnica
 
 - [README](../../README.md): instalación Node.js 24, comandos y estructura.
 - [Compatibilidad](../../docs/compatibility.md), [secretos](../../docs/secrets.md), [operación](../../docs/operations.md) y [migración](../../docs/migration.md).
 - [Decisiones aceptadas](../decisions/README.md): arquitectura, persistencia y seguridad/observabilidad.
+- [Continuidad de desarrollo](development-handoff.md): guía para cambios futuros, herramientas ESM, orden de efectos y evidencia pendiente.
 
 ## Cómo ampliar el contexto
 
