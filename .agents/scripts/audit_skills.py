@@ -12,6 +12,14 @@ installed = {p.parent.name: p for p in BASE.glob('*/SKILL.md')}
 if set(lock) != set(installed):
     errors.append(f'Diferencias entre instalación y lock: {sorted(set(lock) ^ set(installed))}')
 index = (BASE / 'README.md').read_text()
+catalog = re.findall(r'^\| \[[^\]]+\]\(([^/()]+)/SKILL\.md\)', index, re.M)
+if set(catalog) != set(installed):
+    errors.append(f'Diferencias entre catálogo e instalación: {sorted(set(catalog) ^ set(installed))}')
+for name in set(catalog):
+    if catalog.count(name) != 1:
+        errors.append(f'{name}: entrada duplicada en el catálogo')
+if f'**{len(installed)} skills principales**' not in index:
+    errors.append('El total declarado en el catálogo no coincide con la instalación')
 for name, path in sorted(installed.items()):
     body = path.read_text()
     if not re.match(r'\A---\r?\n', body):
@@ -37,18 +45,25 @@ for name, path in sorted(installed.items()):
 docs = ['README.md', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md',
         '.github/copilot-instructions.md', '.agents/README.md',
         '.agents/context/README.md', '.agents/skills/README.md',
-        '.agents/context/skills-audit.md']
+        '.agents/context/skills-audit.md', '.agents/specs/README.md',
+        '.agents/decisions/README.md', '.agents/references/README.md']
 for relative in docs:
     path = ROOT / relative
+    if not path.is_file():
+        errors.append(f'Documento de contexto ausente: {relative}')
+        continue
     for target in re.findall(r'\]\(([^)]+)\)', path.read_text()):
         if '://' in target or target.startswith('#'):
             continue
         if not (path.parent / target.split('#')[0]).exists():
             errors.append(f'{relative}: enlace roto a {target}')
-for relative, target in [('CLAUDE.md', 'AGENTS.md'), ('GEMINI.md', 'AGENTS.md'),
+for relative, target in [('README.md', 'AGENTS.md'),
+                         ('AGENTS.md', '.agents/README.md'),
+                         ('.agents/README.md', 'skills/README.md'),
+                         ('CLAUDE.md', 'AGENTS.md'), ('GEMINI.md', 'AGENTS.md'),
                          ('.github/copilot-instructions.md', '../AGENTS.md'),
                          ('AGENTS.md', '.agents/skills/README.md')]:
-    if f']({target})' not in (ROOT / relative).read_text():
+    if not (ROOT / relative).is_file() or f']({target})' not in (ROOT / relative).read_text():
         errors.append(f'{relative}: falta ruta común a {target}')
 nested = [str(p.relative_to(ROOT)) for p in BASE.rglob('SKILL.md') if p not in installed.values()]
 for error in errors:

@@ -547,6 +547,12 @@
       "skillPath": "plugins/aws-startup-advisor/skills/gcp-to-aws/SKILL.md",
       "computedHash": "f3260e8fbe0d6beaffb791d97244762c93e71dd2ead5faa00586538a5b22073b"
     },
+    "git": {
+      "source": "tangledgroup/tangled-skills",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/git/SKILL.md",
+      "computedHash": "308db8bcd759fc5d8b1dc957366cf5afd7c3137fb22156560c7baf185a71ed81"
+    },
     "heroku-to-aws": {
       "source": "aws/agent-toolkit-for-aws",
       "sourceType": "github",
@@ -612,6 +618,12 @@
       "sourceType": "github",
       "skillPath": "skills/specialized-skills/analytics-skills/migrating-to-amazon-redshift/SKILL.md",
       "computedHash": "7ab9cb9936c434d45caed078ea26052e4b56aae7b2757a5cef4a0be98641939a"
+    },
+    "nodejs-backend-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/javascript-typescript/skills/nodejs-backend-patterns/SKILL.md",
+      "computedHash": "a339a9a33a19095fc7f4153daf13c0917b5c1ad94b069ab2296a98cdb0d7e9a9"
     },
     "operate-on-aws": {
       "source": "aws/agent-toolkit-for-aws",

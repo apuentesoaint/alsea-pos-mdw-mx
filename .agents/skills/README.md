@@ -1,6 +1,6 @@
 # Skills instaladas
 
-El repositorio contiene **149 skills principales** en directorios locales, registradas en [skills-lock.json](../../skills-lock.json). Este catálogo ofrece una ruta de lectura independiente del proveedor del agente. Los nombres originales permiten localizar cada procedimiento; su `description` y sus instrucciones completas están en el `SKILL.md` enlazado.
+El repositorio contiene **151 skills principales** en directorios locales, registradas en [skills-lock.json](../../skills-lock.json). Este catálogo ofrece una ruta de lectura independiente del proveedor del agente. Los nombres originales permiten localizar cada procedimiento; su `description` y sus instrucciones completas están en el `SKILL.md` enlazado.
 
 ## Cómo seleccionar y utilizar una skill
 
@@ -12,9 +12,18 @@ El repositorio contiene **149 skills principales** en directorios locales, regis
 
 Para tareas serverless con selección de arquitectura pendiente, empieza por [aws-serverless](aws-serverless/SKILL.md). Para bases de datos y redes, consulta [aws-database](aws-database/SKILL.md) y [aws-networking](aws-networking/SKILL.md). Si la tarea ya identifica un procedimiento concreto, consulta su skill específica.
 
-Las skills proceden de `aws/agent-toolkit-for-aws`, según el lock. Se conserva su contenido original, que puede estar en inglés; la documentación compartida de este repositorio se mantiene en español. Su instalación no confirma que se utilicen esos servicios en el proyecto.
+Según el lock, 149 skills proceden de `aws/agent-toolkit-for-aws`, `git` de `tangledgroup/tangled-skills` y `nodejs-backend-patterns` de `wshobson/agents`. Se conserva su contenido original, que puede estar en inglés; la documentación compartida de este repositorio se mantiene en español. Su instalación no confirma que se utilicen esos servicios en el proyecto.
 
 ## Catálogo completo
+
+### Desarrollo y control de versiones (2)
+
+| Skill y procedimiento | Cuándo consultarla |
+| --- | --- |
+| [git](git/SKILL.md) | Operaciones de control de versiones: commits, ramas, fusiones, rebase, stash, worktrees y submódulos. |
+| [nodejs-backend-patterns](nodejs-backend-patterns/SKILL.md) | Desarrollo de servicios Node.js con Express/Fastify, middleware, errores, autenticación, bases de datos y diseño de APIs REST o GraphQL. |
+
+`nodejs-backend-patterns` menciona `javascript-testing-patterns`, que no está instalada en este repositorio. Esa referencia no constituye una skill disponible: comunica la dependencia si la tarea requiere sus instrucciones. La presencia de patrones Node.js no fija el lenguaje ni el runtime del proyecto.
 
 ### Entrada general de AWS (1)
 
