@@ -1,6 +1,13 @@
 # Decisiones técnicas
 
-Este directorio registra decisiones técnicas duraderas y sus motivos. No hay decisiones técnicas registradas por ahora.
+Este directorio registra decisiones técnicas duraderas y sus motivos.
+
+| Decisión | Estado |
+| --- | --- |
+| [0001 — Handlers Lambda nativos y ESM](0001-native-lambda-esm.md) | Aceptada |
+| [0002 — Persistencia consistente](0002-consistent-transaction-storage.md) | Aceptada |
+| [0003 — Secretos y observabilidad](0003-secrets-and-observability.md) | Aceptada |
+| [0004 — Adaptadores ESM y compatibilidad HTTP](0004-toolchain-adapters-and-http-parity.md) | Aceptada; cierre de seguridad y paridad pendientes |
 
 ## Cómo añadir una decisión
 

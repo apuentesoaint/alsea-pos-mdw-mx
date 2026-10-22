@@ -1,6 +1,6 @@
 # Índice de contexto compartido
 
-La entrada común es [AGENTS.md](../AGENTS.md). Este directorio organiza el contexto del proyecto en archivos Markdown legibles por cualquier agente con acceso al repositorio.
+La entrada común es [AGENTS.md](../AGENTS.md). Este directorio organiza el contexto del proyecto en archivos Markdown legibles por cualquier agente con acceso al repositorio. El middleware AWS está implementado localmente; consultar [estado y pendientes](context/README.md) antes de desplegar o migrar datos.
 
 | Directorio | Qué contiene | Cuándo consultarlo |
 | --- | --- | --- |
@@ -19,3 +19,5 @@ La entrada común es [AGENTS.md](../AGENTS.md). Este directorio organiza el cont
 - Lee los documentos según la tarea; no es necesario cargar todas las referencias o skills en cada conversación.
 
 Este directorio no garantiza descubrimiento automático ni ejecución de skills en todas las herramientas. Para agentes sin soporte específico, sigue manualmente los enlaces desde `AGENTS.md`.
+
+La ejecución del plan de saneamiento y HTTP se registra en [dependencias](../docs/dependency-remediation.md) y [paridad HTTP](../docs/http-parity.md); sus bloqueos no quedan aprobados por superar las pruebas funcionales.

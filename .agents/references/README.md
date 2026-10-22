@@ -4,6 +4,12 @@ Documentación de apoyo para resolver tareas. Las fuentes externas son material 
 
 ## Fuentes iniciales
 
+La referencia funcional de esta migración es el código Java Cuponera indicado por el usuario. Su [inventario con hashes](../../docs/source-baseline.json) permite comprobar cambios; la [matriz de compatibilidad](../../docs/compatibility.md) identifica clases y limitaciones de la lectura estática. No contiene valores de credenciales.
+
+La [revisión de implementación](../../docs/review.md) registra hallazgos, riesgos y referencias oficiales contrastadas para Node.js 24, ESM y dimensiones CloudWatch/DynamoDB.
+
+El [saneamiento de herramientas](../../docs/dependency-remediation.md) contiene avisos primarios y límites de sustitución. La [compatibilidad HTTP](../../docs/http-parity.md) enlaza el código fuente de Spring 6.1.3 utilizado para reconstruir negociación y errores sin ejecutar Java.
+
 | Referencia | Procedencia | Uso |
 | --- | --- | --- |
 | [AGENTS.md](https://agents.md/) | Sitio oficial del formato AGENTS.md. | Convención de entrada para instrucciones de agentes. |

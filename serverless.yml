@@ -1,0 +1,144 @@
+service: prj-cuponera-back-mdw-sls
+frameworkVersion: '3.40.0'
+configValidationMode: error
+plugins:
+  - ./plugins/node24.mjs
+  - ./plugins/infrastructure.mjs
+  - serverless-esbuild
+
+provider:
+  name: aws
+  runtime: nodejs24.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  architecture: arm64
+  memorySize: 512
+  timeout: 28
+  versionFunctions: true
+  logRetentionInDays: ${self:custom.stageSettings.logRetention}
+  endpointType: REGIONAL
+  apiGateway:
+    binaryMediaTypes: ['image/png', 'image/avif', 'image/webp', 'image/apng', 'image/svg+xml', 'image/x-icon']
+  deploymentBucket:
+    blockPublicAccess: true
+    serverSideEncryption: AES256
+  logs:
+    restApi:
+      accessLogging: true
+      executionLogging: true
+      fullExecutionData: false
+      level: INFO
+      role:
+        Fn::If:
+          - UseExistingGatewayLogsRole
+          - ${param:gatewayLogsRoleArn, ''}
+          - { Fn::GetAtt: [ApiGatewayLoggingRole, Arn] }
+      roleManagedExternally: true
+      format: '{"requestId":"$context.requestId","extendedRequestId":"$context.extendedRequestId","method":"$context.httpMethod","resource":"$context.resourcePath","status":"$context.status","latency":"$context.responseLatency","integrationStatus":"$context.integrationStatus"}'
+  environment:
+    STAGE: ${sls:stage}
+    TRANSACTIONS_TABLE: { Ref: TransactionsTable }
+    DETAILS_BUCKET: { Ref: DetailsBucket }
+    AUTH_SECRET_ARN: { Ref: AuthSecret }
+    SIGNING_SECRET_ARN: { Ref: SigningSecret }
+    CUPONERA_SECRET_ARN: { Ref: CuponeraSecret }
+    STARBUCKS_SECRET_ARN: { Ref: StarbucksSecret }
+    SECRET_CACHE_SECONDS: '300'
+    HTTP_TIMEOUT_MS: '5000'
+    AWS_TIMEOUT_MS: '5000'
+    JWT_TTL_SECONDS: '86400'
+    GENERATE_MOCK: 'false'
+    GENERATE_CAMPAIGN: FMR
+    GENERATE_PROMOTION_ONE: OZ
+    GENERATE_PROMOTION_TWO: S8
+    CUPONERA_URI_TOKEN: ${param:cuponeraTokenUrl, ''}
+    CUPONERA_URI_VALIDATE_V1: ${param:cuponeraValidateUrl, ''}
+    CUPONERA_URI_REDEEM_V1: ${param:cuponeraRedeemUrl, ''}
+    CUPONERA_URI_GENERATE: ${param:cuponeraGenerateUrl, ''}
+    APISBX_URI: ${param:starbucksBaseUrl, ''}
+    APISBX_VERSION: ${param:starbucksVersion, ''}
+    APISBX_PATH_TOKEN: ${param:starbucksTokenPath, ''}
+    APISBX_PATH_SERVICE_COUPONS: ${param:starbucksCouponPath, ''}
+    OPENAPI_DEV_URL: ${param:openapiDevUrl, 'http://localhost:8080'}
+    OPENAPI_PROD_URL: ${param:openapiProdUrl, 'https://alsea-api.com'}
+    PUBLIC_BASE_PATH: ${param:publicBasePath, ''}
+    NODE_OPTIONS: --enable-source-maps
+    LOG_LEVEL: INFO
+
+custom:
+  stages:
+    dev: { logRetention: 7 }
+    qa: { logRetention: 14 }
+    prod: { logRetention: 90 }
+  stageSettings: ${self:custom.stages.${sls:stage}}
+  esbuild:
+    bundle: true
+    format: esm
+    platform: node
+    target: node24
+    outputFileExtension: .mjs
+    mainFields: [module, main]
+    alias:
+      yaml: ./node_modules/yaml/browser/index.js
+    minify: true
+    keepNames: true
+    sourcemap: true
+    sourcesContent: false
+    metafile: true
+    exclude: []
+    concurrency: 3
+    zipConcurrency: 3
+
+package:
+  individually: true
+  patterns:
+    - '!**'
+
+functions:
+  auth:
+    handler: src/handlers/auth.handler
+    role: { Fn::GetAtt: [AuthRole, Arn] }
+    events:
+      - http: { method: post, path: auth/token }
+      - http: { method: any, path: auth/token }
+  validate:
+    handler: src/handlers/validate.handler
+    role: { Fn::GetAtt: [ValidateRole, Arn] }
+    events:
+      - http: { method: post, path: coupons/validate }
+      - http: { method: any, path: coupons/validate }
+  redeem:
+    handler: src/handlers/redeem.handler
+    role: { Fn::GetAtt: [RedeemRole, Arn] }
+    events:
+      - http: { method: post, path: coupons/redeem }
+      - http: { method: any, path: coupons/redeem }
+  generate:
+    handler: src/handlers/generate.handler
+    role: { Fn::GetAtt: [GenerateRole, Arn] }
+    events:
+      - http: { method: post, path: coupons/generate }
+      - http: { method: any, path: coupons/generate }
+  latest:
+    handler: src/handlers/latest.handler
+    role: { Fn::GetAtt: [LatestRole, Arn] }
+    events:
+      - http: { method: get, path: coupons/transaction/latest }
+      - http: { method: any, path: coupons/transaction/latest }
+  technical:
+    handler: src/handlers/technical.handler
+    role: { Fn::GetAtt: [TechnicalRole, Arn] }
+    package:
+      patterns: ['assets/swagger/**']
+    events:
+      - http: { method: get, path: coupons/healthcheck }
+      - http: { method: any, path: coupons/healthcheck }
+      - http: { method: get, path: test-insights }
+      - http: { method: any, path: test-insights }
+      - http: { method: any, path: auth }
+      - http: { method: any, path: coupons }
+      - http: { method: any, path: coupons/transaction }
+      - http: { method: any, path: '{proxy+}' }
+      - http: { method: any, path: / }
+
+resources: ${file(./infra/resources.js):resources}

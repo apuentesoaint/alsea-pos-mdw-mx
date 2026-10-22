@@ -1,6 +1,9 @@
 # Especificaciones
 
-Este directorio reúne requisitos y criterios de aceptación de funcionalidades. No hay especificaciones registradas por ahora.
+Este directorio reúne requisitos y criterios de aceptación de funcionalidades.
+
+- [Migración AWS de Cuponera](aws-migration.md): requisitos acordados; implementación local y aceptación operativa pendiente.
+- [Saneamiento de dependencias](../../docs/dependency-remediation.md) y [compatibilidad HTTP](../../docs/http-parity.md): ejecución del plan aprobado, verificaciones y bloqueos residuales.
 
 ## Cómo añadir una especificación
 
