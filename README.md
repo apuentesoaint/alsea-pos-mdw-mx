@@ -16,17 +16,53 @@ flowchart LR
 
 ## Desarrollo y comprobaciones
 
-Requisitos: Node.js 24, npm y `unzip` para inspeccionar paquetes. No se necesita Java, Docker ni acceso AWS para ejecutar las pruebas locales.
+Ejecutar los comandos desde la raíz del repositorio. Requisitos: Node.js 24 y npm; la verificación completa requiere además `unzip` para inspeccionar paquetes. No se necesita Java, Docker ni acceso AWS para ejecutar las pruebas locales.
+
+### Comprobación mínima sin instalar nada
+
+Con las dependencias ya presentes en `node_modules`:
 
 ```sh
-npm ci --ignore-scripts
+node --version
+npm run typecheck
+npm test
+```
+
+`node --version` debe mostrar `v24.x.x`. `typecheck` detecta errores de tipos TypeScript sin generar archivos. `npm test` compila el proyecto y ejecuta las pruebas locales con `node:test`, por lo que no hace falta ejecutar `build` aparte.
+
+Para comprobar únicamente la compilación y generar `dist/`:
+
+```sh
+npm run build
+```
+
+Estos comandos no instalan dependencias. Si falta `node_modules` o alguna dependencia necesaria, no se podrá completar la compilación ni las pruebas sin instalarla previamente.
+
+### Verificación completa
+
+Con los mismos requisitos y `unzip`, ejecutar:
+
+```sh
 npm run verify
-npm run audit:dependencies
 ```
 
 `verify` comprueba tipos, ejecuta pruebas Node.js, empaqueta con Serverless y carga cada ZIP como ESM en Node.js 24. Verifica runtime, top-level await, SDK, protección de datos y ausencia de compiladores TypeScript en los artefactos. Después prueba los handlers con el SDK v3 real sobre un servidor local y bloquea salida de red externa. No despliega ni llama a AWS.
 
-La comprobación de seguridad es independiente: `audit:dependencies` audita todas las dependencias y falla mientras existan avisos conocidos. Estado actual: 15 paquetes afectados, cero críticos; producción sin avisos. El despliegue exige esta comprobación y un manifiesto SHA-256 del artefacto verificado. Consultar [saneamiento y bloqueos](docs/dependency-remediation.md) y [compatibilidad HTTP](docs/http-parity.md).
+Superar estas comprobaciones valida los casos cubiertos localmente; no garantiza ausencia absoluta de errores ni valida las integraciones reales en AWS.
+
+La comprobación de seguridad es independiente y consulta la auditoría de npm:
+
+```sh
+npm run audit:dependencies
+```
+
+`audit:dependencies` audita todas las dependencias y falla mientras existan avisos conocidos. Último estado registrado: 15 paquetes afectados, cero críticos; producción sin avisos. El despliegue exige esta comprobación y un manifiesto SHA-256 del artefacto verificado. Consultar [saneamiento y bloqueos](docs/dependency-remediation.md) y [compatibilidad HTTP](docs/http-parity.md).
+
+Si se necesita preparar un clon sin dependencias, el siguiente paso **sí instala paquetes** y queda fuera de las comprobaciones sin instalación:
+
+```sh
+npm ci --ignore-scripts
+```
 
 Los comandos de empaquetado y despliegue cargan un adaptador ESM de interfaces de terceros con hashes fijados. Para otros comandos del CLI usar `npm run serverless -- <comando>`; no invocar directamente el binario ni una instalación global.
 
