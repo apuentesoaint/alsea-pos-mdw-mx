@@ -21,7 +21,8 @@ test('parámetros vacíos y overrides se resuelven con Serverless 3 real sin mod
     assert.equal(resolved.provider.environment.SECURITY_SECRET_ID, 'cuponera-api-security/qa/custom-mdw');
     assert.equal(resolved.provider.environment.APISBX_VERSION, '');
     assert.equal(resolved.provider.environment.PUBLIC_BASE_PATH, '');
-    assert.equal(resolved.provider.stackParameters.find((param: { ParameterKey: string }) => param.ParameterKey === 'SecuritySecretKmsKeyArn').ParameterValue, '');
+    assert.equal(resolved.provider.stackParameters, undefined);
+    assert.equal(resolved.resources.Parameters.SecuritySecretKmsKeyArn.Default, '');
     assert.ok(resolved.functions.auth);
     assert.ok(resolved.resources.Resources.AuthRole);
   });
