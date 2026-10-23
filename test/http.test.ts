@@ -9,7 +9,7 @@ import { body, javaInteger, springInteger, validateBody } from '../src/core/vali
 import { javaDecimalText, parseJson, stringify } from '../src/core/json.js';
 import { Decimal } from 'decimal.js';
 import { persistence, publicError, technical } from '../src/core/errors.js';
-import { config, secrets, request, coupon, redeem, generate } from './fixtures.js';
+import { testJwtSecret, config, secrets, request, coupon, redeem, generate } from './fixtures.js';
 
 function setup() {
   const repository = new MemoryTransactions();
@@ -23,7 +23,7 @@ function event(path: string, method = 'GET', value?: unknown, token?: string): H
 }
 test('JWT HS384 conserva iat=exp y expiresIn como epoch en texto', async () => {
   const now = 1_700_000_000_000; const auth = new Authentication(config(), secrets, () => now);
-  const token = await auth.issue('test-client', 'test-secret'); assert.ok(token);
+  const token = await auth.issue('test-client', testJwtSecret); assert.ok(token);
   assert.equal(decodeProtectedHeader(token.accessToken).alg, 'HS384');
   const claims = decodeJwt(token.accessToken); assert.equal(claims.iat, claims.exp); assert.equal(token.expiresIn, String(claims.exp));
   assert.equal(await auth.valid(`bEaReR ${token.accessToken}`), true);
@@ -45,7 +45,7 @@ test('healthcheck es público, literal y no añade correlación', async () => {
   assert.equal(response.headers['Cache-Control'], 'no-cache, no-store, max-age=0, must-revalidate');
 });
 test('contratos de validate, latest, redeem y generate completos', async () => {
-  const { application, auth } = setup(); const token = (await auth.issue('test-client', 'test-secret'))!.accessToken;
+  const { application, auth } = setup(); const token = (await auth.issue('test-client', testJwtSecret))!.accessToken;
   const validated = await application(event('/coupons/validate', 'POST', request(), token));
   const result = JSON.parse(validated.body);
   assert.equal(validated.statusCode, 200); assert.equal(result.data.totalDiscount, 20); assert.equal(result.data.discountId, '7002');
@@ -59,7 +59,7 @@ test('contratos de validate, latest, redeem y generate completos', async () => {
   assert.deepEqual(JSON.parse((await application(event('/coupons/generate', 'POST', generate(), token))).body).data, { coupon: { code: 'TEST002' } });
 });
 test('JSON malformado, campos ausentes, nulos y espacios usan el contrato de errores', async () => {
-  const { application, auth } = setup(); const token = (await auth.issue('test-client', 'test-secret'))!.accessToken;
+  const { application, auth } = setup(); const token = (await auth.issue('test-client', testJwtSecret))!.accessToken;
   const invalid = event('/coupons/validate', 'POST', request(), token); invalid.body = '{';
   const response = await application(invalid); assert.equal(response.statusCode, 400); assert.equal(JSON.parse(response.body).success, false);
   const spaced = { ...request(), couponCode: ' X ' };
@@ -69,12 +69,12 @@ test('JSON malformado, campos ausentes, nulos y espacios usan el contrato de err
 });
 test('error de persistencia devuelve HTTP 500 y mensaje genérico', async () => {
   const { repository, application, auth } = setup(); repository.save = async () => { throw persistence(new Error('SensitiveDatabaseMessage')); };
-  const token = (await auth.issue('test-client', 'test-secret'))!.accessToken;
+  const token = (await auth.issue('test-client', testJwtSecret))!.accessToken;
   const response = await application(event('/coupons/validate', 'POST', request(), token));
   assert.equal(response.statusCode, 500); assert.ok(!response.body.includes('SensitiveDatabaseMessage'));
 });
 test('rutas técnicas, documentación, métodos inválidos y ausencia de Actuator', async () => {
-  const { application, auth } = setup(); const token = (await auth.issue('test-client', 'test-secret'))!.accessToken;
+  const { application, auth } = setup(); const token = (await auth.issue('test-client', testJwtSecret))!.accessToken;
   assert.equal((await application(event('/swagger-ui.html'))).statusCode, 302);
   const openapi = JSON.parse((await application(event('/v3/api-docs'))).body);
   assert.equal(openapi.info.version, '1.0.5'); assert.ok(openapi.paths['/coupons/generate']);
@@ -85,12 +85,12 @@ test('rutas técnicas, documentación, métodos inválidos y ausencia de Actuato
   assert.equal((await application(event('/does-not-exist', 'GET', undefined, token))).statusCode, 404);
 });
 test('la correlación no permite inyectar líneas y las cabeceras no dependen de mayúsculas', async () => {
-  const { application, auth } = setup(); const token = (await auth.issue('test-client', 'test-secret'))!.accessToken;
+  const { application, auth } = setup(); const token = (await auth.issue('test-client', testJwtSecret))!.accessToken;
   const input = event('/coupons/generate', 'POST', generate(), token); input.headers['x-transaction-id'] = 'abc\r\nforged';
   const response = await application(input); assert.equal(response.headers['X-Transaction-ID'], 'abcforged');
 });
 test('negociación de contenido, parámetros y HEAD conservan seguridad y Problem Details', async () => {
-  const { application, auth } = setup(); const token = (await auth.issue('test-client', 'test-secret'))!.accessToken;
+  const { application, auth } = setup(); const token = (await auth.issue('test-client', testJwtSecret))!.accessToken;
   const input = event('/coupons/validate', 'POST', request(), token); input.headers['Content-Type'] = 'text/plain';
   const unsupported = await application(input);
   assert.equal(unsupported.statusCode, 415); assert.equal(unsupported.headers['Content-Type'], 'application/problem+json');

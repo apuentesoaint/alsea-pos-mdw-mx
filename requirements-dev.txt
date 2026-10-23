@@ -1,0 +1,2 @@
+# Herramienta de validación local; instalar en .cache/cfn-lint (venv).
+cfn-lint==1.58.0

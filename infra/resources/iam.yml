@@ -1,0 +1,348 @@
+# Recursos del stack; configuración de entorno centralizada en serverless.yml.
+Resources:
+  AuthRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Lectura del secreto único externo y permisos de la operación auth.
+        must:
+          - DevOps administra el secreto externo; no crear versiones desde Lambda
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: Runtime
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  Fn::Sub: arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${self:service}-${sls:stage}-auth:*
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: ${self:custom.securitySecretArn}
+                Condition:
+                  Bool:
+                    aws:SecureTransport: "true"
+              - Fn::If:
+                  - HasSecuritySecretKmsKey
+                  - Effect: Allow
+                    Action:
+                      - kms:Decrypt
+                    Resource:
+                      Ref: SecuritySecretKmsKeyArn
+                    Condition:
+                      StringEquals:
+                        kms:ViaService:
+                          Fn::Sub: secretsmanager.${AWS::Region}.${AWS::URLSuffix}
+                      StringLike:
+                        kms:EncryptionContext:SecretARN: ${self:custom.securitySecretArn}
+                  - Ref: AWS::NoValue
+  ValidateRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Lectura del secreto único externo y permisos de la operación validate.
+        must:
+          - DevOps administra el secreto externo; no crear versiones desde Lambda
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: Runtime
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  Fn::Sub: arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${self:service}-${sls:stage}-validate:*
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: ${self:custom.securitySecretArn}
+                Condition:
+                  Bool:
+                    aws:SecureTransport: "true"
+              - Fn::If:
+                  - HasSecuritySecretKmsKey
+                  - Effect: Allow
+                    Action:
+                      - kms:Decrypt
+                    Resource:
+                      Ref: SecuritySecretKmsKeyArn
+                    Condition:
+                      StringEquals:
+                        kms:ViaService:
+                          Fn::Sub: secretsmanager.${AWS::Region}.${AWS::URLSuffix}
+                      StringLike:
+                        kms:EncryptionContext:SecretARN: ${self:custom.securitySecretArn}
+                  - Ref: AWS::NoValue
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                Resource:
+                  Fn::GetAtt:
+                    - TransactionsPOS
+                    - Arn
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:DeleteObjectVersion
+                Resource:
+                  Fn::Sub: ${DetailsBucket.Arn}/details/*
+  RedeemRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Lectura del secreto único externo y permisos de la operación redeem.
+        must:
+          - DevOps administra el secreto externo; no crear versiones desde Lambda
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: Runtime
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  Fn::Sub: arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${self:service}-${sls:stage}-redeem:*
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: ${self:custom.securitySecretArn}
+                Condition:
+                  Bool:
+                    aws:SecureTransport: "true"
+              - Fn::If:
+                  - HasSecuritySecretKmsKey
+                  - Effect: Allow
+                    Action:
+                      - kms:Decrypt
+                    Resource:
+                      Ref: SecuritySecretKmsKeyArn
+                    Condition:
+                      StringEquals:
+                        kms:ViaService:
+                          Fn::Sub: secretsmanager.${AWS::Region}.${AWS::URLSuffix}
+                      StringLike:
+                        kms:EncryptionContext:SecretARN: ${self:custom.securitySecretArn}
+                  - Ref: AWS::NoValue
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:DeleteItem
+                Resource:
+                  Fn::GetAtt:
+                    - TransactionsPOS
+                    - Arn
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                Resource:
+                  Fn::Sub: ${DetailsBucket.Arn}/details/*
+  GenerateRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Lectura del secreto único externo y permisos de la operación generate.
+        must:
+          - DevOps administra el secreto externo; no crear versiones desde Lambda
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: Runtime
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  Fn::Sub: arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${self:service}-${sls:stage}-generate:*
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: ${self:custom.securitySecretArn}
+                Condition:
+                  Bool:
+                    aws:SecureTransport: "true"
+              - Fn::If:
+                  - HasSecuritySecretKmsKey
+                  - Effect: Allow
+                    Action:
+                      - kms:Decrypt
+                    Resource:
+                      Ref: SecuritySecretKmsKeyArn
+                    Condition:
+                      StringEquals:
+                        kms:ViaService:
+                          Fn::Sub: secretsmanager.${AWS::Region}.${AWS::URLSuffix}
+                      StringLike:
+                        kms:EncryptionContext:SecretARN: ${self:custom.securitySecretArn}
+                  - Ref: AWS::NoValue
+  LatestRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Lectura del secreto único externo y permisos de la operación latest.
+        must:
+          - DevOps administra el secreto externo; no crear versiones desde Lambda
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: Runtime
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  Fn::Sub: arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${self:service}-${sls:stage}-latest:*
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: ${self:custom.securitySecretArn}
+                Condition:
+                  Bool:
+                    aws:SecureTransport: "true"
+              - Fn::If:
+                  - HasSecuritySecretKmsKey
+                  - Effect: Allow
+                    Action:
+                      - kms:Decrypt
+                    Resource:
+                      Ref: SecuritySecretKmsKeyArn
+                    Condition:
+                      StringEquals:
+                        kms:ViaService:
+                          Fn::Sub: secretsmanager.${AWS::Region}.${AWS::URLSuffix}
+                      StringLike:
+                        kms:EncryptionContext:SecretARN: ${self:custom.securitySecretArn}
+                  - Ref: AWS::NoValue
+              - Effect: Allow
+                Action:
+                  - dynamodb:Query
+                Resource:
+                  Fn::GetAtt:
+                    - TransactionsPOS
+                    - Arn
+  TechnicalRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Lectura del secreto único externo y permisos de la operación technical.
+        must:
+          - DevOps administra el secreto externo; no crear versiones desde Lambda
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: Runtime
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  Fn::Sub: arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${self:service}-${sls:stage}-technical:*
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: ${self:custom.securitySecretArn}
+                Condition:
+                  Bool:
+                    aws:SecureTransport: "true"
+              - Fn::If:
+                  - HasSecuritySecretKmsKey
+                  - Effect: Allow
+                    Action:
+                      - kms:Decrypt
+                    Resource:
+                      Ref: SecuritySecretKmsKeyArn
+                    Condition:
+                      StringEquals:
+                        kms:ViaService:
+                          Fn::Sub: secretsmanager.${AWS::Region}.${AWS::URLSuffix}
+                      StringLike:
+                        kms:EncryptionContext:SecretARN: ${self:custom.securitySecretArn}
+                  - Ref: AWS::NoValue
+  MigrationPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Política para un rol temporal del operador; no se adjunta a ninguna Lambda.
+        must: []
+    Properties:
+      Description: Permisos de importación y conciliación Cuponera
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:PutItem
+            Resource:
+              Fn::GetAtt:
+                - TransactionsPOS
+                - Arn
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+              - s3:PutObject
+              - s3:DeleteObjectVersion
+            Resource:
+              Fn::Sub: ${DetailsBucket.Arn}/details/*

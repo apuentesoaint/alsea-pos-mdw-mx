@@ -19,6 +19,16 @@ El [saneamiento de herramientas](../../docs/dependency-remediation.md) contiene 
 
 Estas referencias no fijan servicios, versiones ni decisiones de arquitectura. Comprueba la documentación correspondiente a las versiones que se adopten antes de utilizar ejemplos o comandos.
 
+La [composición modular de infraestructura](../../docs/serverless-infrastructure.md) documenta los YAML, el mapeo estático del Java, marcadores pendientes y referencias oficiales de Serverless.
+
+El [análisis estático](../../docs/code-quality.md) documenta versiones, alcance de ESLint/cfn-lint, advertencias y fuentes oficiales.
+
+La [revisión detallada de Serverless y calidad](../../docs/serverless-quality-review.md) registra cada grupo de archivos, hallazgos corregidos, casos ejecutados y límites.
+
+El [análisis del secreto único](../../docs/secrets.md) documenta el esquema confirmado por DevOps y el usuario, la firma UTF-8 con jwt_clientSecret, IAM/KMS y las fuentes oficiales consultadas.
+
+La [revisión detallada del secreto único](../../docs/single-secret-review.md) reúne inspección por archivo, correcciones, pruebas y fuentes primarias de AWS, Node.js, jose y el CLI instalado.
+
 ## Cómo añadir referencias
 
 Añade el enlace, la procedencia y una breve explicación de su utilidad a este índice. Para notas locales, crea un archivo con nombre descriptivo en este directorio, enlázalo aquí y cita la fuente original y su fecha de consulta. Evita copiar documentación extensa o incluir datos sensibles.

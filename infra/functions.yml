@@ -1,0 +1,102 @@
+auth:
+  handler: src/handlers/auth.handler
+  role:
+    Fn::GetAtt:
+      - AuthRole
+      - Arn
+  events:
+    - http:
+        method: post
+        path: auth/token
+    - http:
+        method: any
+        path: auth/token
+validate:
+  handler: src/handlers/validate.handler
+  role:
+    Fn::GetAtt:
+      - ValidateRole
+      - Arn
+  events:
+    - http:
+        method: post
+        path: coupons/validate
+    - http:
+        method: any
+        path: coupons/validate
+redeem:
+  handler: src/handlers/redeem.handler
+  role:
+    Fn::GetAtt:
+      - RedeemRole
+      - Arn
+  events:
+    - http:
+        method: post
+        path: coupons/redeem
+    - http:
+        method: any
+        path: coupons/redeem
+generate:
+  handler: src/handlers/generate.handler
+  role:
+    Fn::GetAtt:
+      - GenerateRole
+      - Arn
+  events:
+    - http:
+        method: post
+        path: coupons/generate
+    - http:
+        method: any
+        path: coupons/generate
+latest:
+  handler: src/handlers/latest.handler
+  role:
+    Fn::GetAtt:
+      - LatestRole
+      - Arn
+  events:
+    - http:
+        method: get
+        path: coupons/transaction/latest
+    - http:
+        method: any
+        path: coupons/transaction/latest
+technical:
+  handler: src/handlers/technical.handler
+  role:
+    Fn::GetAtt:
+      - TechnicalRole
+      - Arn
+  package:
+    patterns:
+      - assets/swagger/**
+  events:
+    - http:
+        method: get
+        path: coupons/healthcheck
+    - http:
+        method: any
+        path: coupons/healthcheck
+    - http:
+        method: get
+        path: test-insights
+    - http:
+        method: any
+        path: test-insights
+    - http:
+        method: any
+        path: auth
+    - http:
+        method: any
+        path: coupons
+    - http:
+        method: any
+        path: coupons/transaction
+    - http:
+        method: any
+        path: "{proxy+}"
+    - http:
+        method: any
+        path: /

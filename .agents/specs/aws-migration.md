@@ -8,7 +8,7 @@ Node.js 24 para Lambdas y herramientas propias, AWS SDK v3 modular y ESM nativo 
 
 Replicar el código Java Cuponera preservando contratos, endpoints, reglas, integraciones y anomalías observables. No descargar JDK ni ejecutar Java. Mantener los siete endpoints de negocio/técnicos, Swagger y las rutas realmente presentes en las dependencias, sin inventar Actuator a partir del YAML. Consultar la [matriz estática](../../docs/compatibility.md).
 
-API Gateway REST Regional, Lambdas bajo demanda por operación, DynamoDB operativo, S3 para detalle mayor de 300 KiB, secretos por entorno y CloudWatch. Entornos dev/qa/prod en us-east-1. Las hipótesis de carga y criterios operativos están en [operación](../../docs/operations.md).
+API Gateway REST Regional, Lambdas bajo demanda por operación, DynamoDB operativo, S3 para detalle mayor de 300 KiB, un secreto externo por entorno administrado por DevOps y CloudWatch (ver [ADR 0007](../decisions/0007-single-devops-security-secret.md)). Entornos dev/qa/prod en us-east-1. Las hipótesis de carga y criterios operativos están en [operación](../../docs/operations.md).
 
 ## Aceptación
 

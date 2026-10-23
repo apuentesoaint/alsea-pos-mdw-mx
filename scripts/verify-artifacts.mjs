@@ -13,6 +13,7 @@ const resourceNames = new Set(Object.keys(template.Resources));
 const references = new Set([...resourceNames, ...Object.keys(template.Parameters ?? {}), 'AWS::AccountId', 'AWS::Region', 'AWS::Partition', 'AWS::StackName', 'AWS::StackId', 'AWS::URLSuffix', 'AWS::NotificationARNs', 'AWS::NoValue']);
 function auditTemplate(value) {
   if (!value || typeof value !== 'object') return;
+  if (value.Statement && value.Version) assert.equal(value.Version, '2012-10-17', 'Versión IAM literal, sin conversión YAML a fecha');
   if (value.Ref) assert.ok(references.has(value.Ref), `Ref desconocida: ${value.Ref}`);
   if (value['Fn::GetAtt']) assert.ok(resourceNames.has(Array.isArray(value['Fn::GetAtt']) ? value['Fn::GetAtt'][0] : value['Fn::GetAtt'].split('.')[0]), 'GetAtt desconocido');
   if (value['Fn::If']) assert.ok(Object.hasOwn(template.Conditions ?? {}, value['Fn::If'][0]), 'Condición desconocida');
@@ -24,19 +25,46 @@ for (const resource of Object.values(template.Resources)) for (const dependency 
 const lambdas = Object.values(template.Resources).filter(value => value.Type === 'AWS::Lambda::Function');
 assert.equal(lambdas.length, 6);
 assert.ok(lambdas.every(value => value.Properties.Runtime === 'nodejs24.x'));
+const secretName = lambdas[0].Properties.Environment.Variables.SECURITY_SECRET_ID;
+assert.equal(typeof secretName, 'string');
+assert.match(secretName, /^[\w/+=.@-]{1,512}$/);
+const secretArn = { 'Fn::Sub': `arn:\${AWS::Partition}:secretsmanager:\${AWS::Region}:\${AWS::AccountId}:secret:${secretName}-??????` };
+for (const lambda of lambdas) {
+  const variables = lambda.Properties.Environment.Variables;
+  assert.equal(variables.SECURITY_SECRET_ID, secretName, 'Un solo identificador para las seis Lambdas');
+  assert.ok(!Object.keys(variables).some(name => /^(?:AUTH|SIGNING|CUPONERA|STARBUCKS|MIGRATION)_SECRET_ARN$/.test(name)), 'Sin referencias antiguas');
+}
+for (const name of ['AuthRole', 'ValidateRole', 'RedeemRole', 'GenerateRole', 'LatestRole', 'TechnicalRole']) {
+  const statements = template.Resources[name].Properties.Policies[0].PolicyDocument.Statement;
+  const reads = statements.filter(statement => statement.Action?.includes('secretsmanager:GetSecretValue'));
+  assert.equal(reads.length, 1);
+  assert.deepEqual(reads[0].Resource, secretArn, 'IAM debe leer el mismo secreto que recibe Lambda');
+  assert.equal(reads[0].Condition.Bool['aws:SecureTransport'], 'true');
+  const conditional = statements.find(statement => statement['Fn::If'])['Fn::If'];
+  assert.equal(conditional[0], 'HasSecuritySecretKmsKey');
+  assert.deepEqual(conditional[1].Action, ['kms:Decrypt']);
+  assert.deepEqual(conditional[1].Resource, { Ref: 'SecuritySecretKmsKeyArn' });
+  assert.deepEqual(conditional[1].Condition.StringLike['kms:EncryptionContext:SecretARN'], secretArn);
+  assert.deepEqual(conditional[1].Condition.StringEquals['kms:ViaService'], { 'Fn::Sub': 'secretsmanager.${AWS::Region}.${AWS::URLSuffix}' });
+  assert.deepEqual(conditional[2], { Ref: 'AWS::NoValue' });
+}
+assert.deepEqual(template.Conditions.HasSecuritySecretKmsKey, { 'Fn::Not': [{ 'Fn::Equals': [{ Ref: 'SecuritySecretKmsKeyArn' }, ''] }] });
+assert.ok(!JSON.stringify(template.Resources.MigrationPolicy).includes('secretsmanager:'), 'Migración sin otros secretos');
+
 const stage = lambdas[0].Properties.Environment.Variables.STAGE;
 const retention = { dev: 7, qa: 14, prod: 90 }[stage];
 assert.ok(retention, 'Entorno permitido');
 assert.equal(template.Resources.GatewayExecutionLogGroup.Properties.RetentionInDays, retention);
 assert.ok(Object.values(template.Resources).filter(value => value.Type === 'AWS::Logs::LogGroup').every(value => value.Properties.RetentionInDays === retention));
-for (const name of ['TransactionsTable', 'DetailsBucket', 'DetailsBucketPolicy', 'SecretsKey']) {
+for (const name of ['TransactionsPOS', 'DetailsBucket', 'DetailsBucketPolicy']) {
   assert.equal(template.Resources[name].DeletionPolicy, 'Retain');
   assert.equal(template.Resources[name].UpdateReplacePolicy, 'Retain');
 }
-assert.equal(template.Resources.TransactionsTable.Properties.BillingMode, 'PAY_PER_REQUEST');
-assert.equal(template.Resources.TransactionsTable.Properties.PointInTimeRecoverySpecification.RecoveryPeriodInDays, 35);
-assert.equal(template.Resources.TransactionsTable.Properties.TimeToLiveSpecification, undefined);
-assert.equal(template.Resources.TransactionsTable.Properties.StreamSpecification, undefined);
+assert.ok(!Object.values(template.Resources).some(resource => ['AWS::SecretsManager::Secret', 'AWS::KMS::Key'].includes(resource.Type)), 'DevOps administra el secreto y su cifrado');
+assert.equal(template.Resources.TransactionsPOS.Properties.BillingMode, 'PAY_PER_REQUEST');
+assert.equal(template.Resources.TransactionsPOS.Properties.PointInTimeRecoverySpecification.RecoveryPeriodInDays, 35);
+assert.equal(template.Resources.TransactionsPOS.Properties.TimeToLiveSpecification, undefined);
+assert.equal(template.Resources.TransactionsPOS.Properties.StreamSpecification, undefined);
 for (const deployment of Object.values(template.Resources).filter(value => value.Type === 'AWS::ApiGateway::Deployment')) {
   assert.ok(deployment.DependsOn.includes('GatewayExecutionLogGroup'), 'Crear logs antes del stage');
 }

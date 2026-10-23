@@ -8,7 +8,7 @@ export class CachedSecrets implements SecretReader {
   private readonly pending = new Map<string, Promise<Record<string, unknown>>>();
   constructor(private readonly client = new SecretsManagerClient({ maxAttempts: 3, requestHandler: { connectionTimeout: 1000, requestTimeout: 5000 } }), private readonly ttl = 300_000) {}
   async get<T extends Record<string, unknown>>(id: string): Promise<T> {
-    if (!id) throw new Error('ARN de secreto no configurado');
+    if (!id) throw new Error('Identificador de secreto no configurado');
     const cached = this.cache.get(id);
     if (cached && cached.expires > Date.now()) return cached.value as T;
     const existing = this.pending.get(id);

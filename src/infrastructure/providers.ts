@@ -5,6 +5,7 @@ import { messages, technical } from '../core/errors.js';
 import { stringify } from '../core/json.js';
 import { metric } from '../core/logging.js';
 import { ExternalHttpError, externalJson, type HttpTransport } from './http.js';
+import { securityField } from '../core/security-fields.js';
 import { javaInteger } from '../core/validation.js';
 
 type AccessToken = { value: string; expires: number };
@@ -58,10 +59,10 @@ export class DigitalCoupons implements CouponProvider {
     if (this.cuponera && this.cuponera.expires >= this.now()) return this.cuponera.value;
     if (this.cuponeraPending) return this.cuponeraPending;
     this.cuponeraPending = (async () => {
-      const credential = await this.secrets.get(this.config.cuponeraSecret);
-      if (typeof credential.basic !== 'string' || !credential.basic) throw new Error('Credencial Cuponera no configurada');
+      const credential = await this.secrets.get(this.config.securitySecret);
+      const basic = securityField(credential, 'cuponera_mx_credential');
       const url = new URL(this.config.tokenUrl); url.searchParams.append('grant_type', 'client_credentials');
-      const response = await this.http(url.toString(), { method: 'POST', headers: { Authorization: `Basic ${credential.basic}`, 'Content-Type': 'application/json' } }, 'cuponera', 'token');
+      const response = await this.http(url.toString(), { method: 'POST', headers: { Authorization: `Basic ${basic}`, 'Content-Type': 'application/json' } }, 'cuponera', 'token');
       if (response.status !== 200) throw technical(`Error al obtener el token: ${response.status}`);
       const body = externalJson<{ access_token: string; expires_in: number }>(response.text);
       if (typeof body.access_token !== 'string' || !Number.isFinite(Number(body.expires_in))) throw technical(messages.general);
@@ -74,13 +75,14 @@ export class DigitalCoupons implements CouponProvider {
     if (this.starbucks && this.now() <= this.starbucks.expires - 300_000) return this.starbucks.value;
     if (this.starbucksPending) return this.starbucksPending;
     this.starbucksPending = (async () => {
-      const credentials = await this.secrets.get(this.config.starbucksSecret);
-      if (typeof credentials.clientId !== 'string' || typeof credentials.clientSecret !== 'string') throw new Error('Credenciales Starbucks no configuradas');
+      const credentials = await this.secrets.get(this.config.securitySecret);
+      const client = securityField(credentials, 'sbx_client');
+      const secret = securityField(credentials, 'sbx_secret');
       const timestamp = String(Math.floor(this.now() / 1000));
-      const sig = createHash('sha256').update(credentials.clientId + credentials.clientSecret + timestamp).digest('hex');
+      const sig = createHash('sha256').update(client + secret + timestamp).digest('hex');
       const url = this.config.starbucksUrl + this.config.starbucksVersion + this.config.starbucksTokenPath;
       const response = await this.http(url, { method: 'POST', headers: {
-        'Content-Type': 'application/json', 'x-api-key': credentials.clientId, 'client-secret': credentials.clientSecret,
+        'Content-Type': 'application/json', 'x-api-key': client, 'client-secret': secret,
         'grant-type': 'client_credentials', timestamp, sig, 'user-agent': 'corealsea',
       }, body: '{"": ["{}"]}' }, 'starbucks', 'token');
       const body = externalJson<{ access_token: string; expires_in: number }>(response.text);

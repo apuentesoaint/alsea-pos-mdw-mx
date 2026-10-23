@@ -8,7 +8,7 @@ import { Coupons } from '../src/domain/coupons.js';
 import { MemoryTransactions } from '../src/infrastructure/memory.js';
 import { LegacyRuntimeError, legacyRuntime, legacyRuntimeMessages } from '../src/core/legacy-errors.js';
 import { publicError } from '../src/core/errors.js';
-import { config, secrets, coupon, request, redeem, generate } from './fixtures.js';
+import { testJwtSecret, config, secrets, coupon, request, redeem, generate } from './fixtures.js';
 
 // Expectativas derivadas del código Spring 6.1.3, no capturadas de una JVM.
 for (const [accept, expected] of [
@@ -50,7 +50,7 @@ async function setup() {
     async generate() { effects.push('generate'); return { coupon: { code: 'TEST002' } }; },
   };
   const auth = new Authentication(config(), secrets);
-  const token = (await auth.issue('test-client', 'test-secret'))!.accessToken;
+  const token = (await auth.issue('test-client', testJwtSecret))!.accessToken;
   const app = createApplication(auth, new Coupons(repository, provider));
   const event = (path: string, value?: unknown, accept?: string): HttpEvent => ({ path, httpMethod: value === undefined ? 'GET' : 'POST',
     body: value === undefined ? null : JSON.stringify(value), headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: accept } });

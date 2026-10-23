@@ -1,10 +1,13 @@
 import { loadConfig } from '../src/core/config.js';
 import type { ExternalCoupon, GenerateRequest, RedeemRequest, SecretReader, ValidateRequest } from '../src/core/types.js';
-export const config = () => ({ ...loadConfig(), authSecret: 'test/auth', signingSecret: 'test/signing', cuponeraSecret: 'test/cu ponera', starbucksSecret: 'test/starbucks',
+export const config = () => ({ ...loadConfig(), securitySecret: 'test/security',
   tokenUrl: 'https://provider.invalid/token', validateUrl: 'https://provider.invalid/coupons/', redeemUrl: 'https://provider.invalid/redeem', generateUrl: 'https://provider.invalid/generate',
   starbucksUrl: 'https://starbucks.invalid', starbucksVersion: '/v1', starbucksTokenPath: '/token', starbucksCouponPath: '/coupons' });
+export const testJwtSecret = 'test-secret-'.repeat(4);
+export const securityPayload = () => ({ cuponera_mx_credential: 'TEST_ONLY', jwt_clientId: 'test-client', jwt_clientSecret: testJwtSecret, sbx_client: 'test-client', sbx_secret: 'test-secret' });
 export const secrets: SecretReader = { async get<T extends Record<string, unknown>>(id: string) {
-  return (id.includes('signing') ? { keyBase64: Buffer.alloc(48, 7).toString('base64') } : id.includes('cu ponera') ? { basic: 'TEST_ONLY' } : { clientId: 'test-client', clientSecret: 'test-secret' }) as unknown as T;
+  if (id !== 'test/security') throw new Error('Identificador distinto al secreto único');
+  return securityPayload() as unknown as T;
 } };
 export function request(): ValidateRequest { return { countryId: 1, brandId: 11, storeId: 1, posId: 1, orderNumber: 12,
   couponCode: 'TEST001', typeOrder: '1', totalOrder: '100', itemsOrder: [{ idItem: 1, familyId: 1, amount: '100', quantity: 1, modifiers: [], descart: false, multivalue: false }] }; }

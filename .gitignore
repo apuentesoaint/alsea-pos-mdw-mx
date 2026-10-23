@@ -11,3 +11,4 @@ coverage/
 migration-data/
 reports/private/
 assets/swagger/
+/.serverless-parameters-*.json

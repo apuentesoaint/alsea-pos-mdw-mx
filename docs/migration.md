@@ -4,11 +4,11 @@ Confirmar exportación autorizada, uso exclusivo de tablas, zona de datetime SQL
 
 El importador es Node.js 24/ESM/SDK v3; el controlador SQL es exclusivo del operador y no entra en los ZIP Lambda. Adjuntar MigrationPolicyArn a un rol temporal; no se adjunta automáticamente a una identidad. El usuario SQL solo necesita lectura.
 
-Configurar MIGRATION_SECRET_ARN, TRANSACTIONS_TABLE, DETAILS_BUCKET, región y perfil temporal por canal seguro. Los archivos exportados contienen datos sensibles: conservarlos fuera del repositorio, con acceso restringido y cifrado. migration-data está ignorado; las exportaciones nuevas tienen permisos 600 y no se sobrescriben.
+Configurar TRANSACTIONS_TABLE, DETAILS_BUCKET, región y perfil temporal por canal seguro. La extracción SQL recibe `--sql-config /ruta/privada/sql.json`: archivo fuera del repositorio, con permisos 600 y campos host, username, password, dbname y port opcional (1–65535). El secreto único de la API no contiene conexión SQL; el importador ya no consulta Secrets Manager. La importación por `--file` continúa disponible. Los archivos exportados contienen datos sensibles: conservarlos fuera del repositorio, con acceso restringido y cifrado. migration-data está ignorado; las exportaciones nuevas tienen permisos 600 y no se sobrescriben.
 
 ```sh
 # Exportar/comprobar; no escribe DynamoDB.
-npm run migrate -- --export /ruta/privada/transactions.jsonl --sql-time-zone America/Mexico_City
+npm run migrate -- --sql-config /ruta/privada/sql.json --export /ruta/privada/transactions.jsonl --sql-time-zone America/Mexico_City
 
 # Comprobar archivo sin contactar SQL ni escribir DynamoDB.
 npm run migrate -- --file /ruta/privada/transactions.jsonl
@@ -19,6 +19,8 @@ npm run migrate -- --file /ruta/privada/transactions.jsonl --apply --writes-stop
 # Comparar campos y pagos de destino contra exportación.
 npm run migrate -- --file /ruta/privada/transactions.jsonl --reconcile
 ```
+
+No combinar --file con --sql-config ni --file con --export; las opciones ambiguas se rechazan antes de leer o consultar la fuente. Los archivos de configuración se comprueban y leen por el mismo descriptor y deben ser regulares, sin permisos de grupo/otros en POSIX. Windows requiere ACL privadas administradas por el operador.
 
 La extracción pagina por UID/sucursal en lotes de 500. Pagos se consultan por UID y conservan duplicados; el origen no identifica una columna de orden.
 

@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { devNull } from 'node:os';
 import { GetCallerIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 import { APIGatewayClient, GetAccountCommand } from '@aws-sdk/client-api-gateway';
+import { withServerlessParameters } from './serverless-parameters.js';
 import { deploymentConfiguration, DeploymentConfigurationError } from './deployment-config.js';
 
 const { values } = parseArgs({ options: { stage: { type: 'string', default: 'dev' }, config: { type: 'string' }, execute: { type: 'boolean', default: false } } });
@@ -18,26 +19,29 @@ async function main() {
   const account = await new APIGatewayClient({ region }).send(new GetAccountCommand({}));
   // La configuración de logs es regional: conservar el rol existente de otros servicios.
   if (account.cloudwatchRoleArn) parameters.gatewayLogsRoleArn = account.cloudwatchRoleArn;
-  const args = ['--stage', values.stage!, ...Object.entries(parameters).map(([key, value]) => `--param=${key}=${value}`)];
-  const buildEnvironment = {
-    ...Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('AWS_') && !['SLS_ACCESS_KEY', 'SERVERLESS_ACCESS_KEY'].includes(name))),
-    AWS_CONFIG_FILE: devNull, AWS_SHARED_CREDENTIALS_FILE: devNull, AWS_EC2_METADATA_DISABLED: 'true',
-  };
-  const run = (script: string, extra: string[]) => {
-    const preload = script === 'node_modules/serverless/bin/serverless.js' ? ['--import', './scripts/toolchain-compat.mjs'] : [];
-    const environment = extra[0] === 'deploy' ? process.env : buildEnvironment;
-    const child = spawnSync(process.execPath, [...preload, script, ...extra], { stdio: 'inherit', env: { ...environment, SLS_TELEMETRY_DISABLED: '1', SLS_DISABLE_AUTO_UPDATE: '1' } });
-    if (child.status !== 0) throw new DeploymentConfigurationError('Falló la verificación o el comando de despliegue');
-  };
-  run('scripts/prepare-assets.mjs', []);
-  run('node_modules/serverless/bin/serverless.js', ['package', ...args]);
-  run('scripts/verify-artifacts.mjs', []);
-  run('scripts/verify-runtime.mjs', []);
-  run('scripts/artifact-integrity.mjs', ['record']);
-  if (!values.execute) { console.info('Cuenta y configuración verificadas. Artefactos preparados; no se desplegó infraestructura.'); return; }
-  run('scripts/audit-dependencies.mjs', []);
-  run('scripts/artifact-integrity.mjs', ['check']);
-  run('node_modules/serverless/bin/serverless.js', ['deploy', '--package', '.serverless', ...args]);
+  await withServerlessParameters(values.stage!, parameters, async args => {
+    const buildEnvironment = {
+      ...Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('AWS_') && !['SLS_ACCESS_KEY', 'SERVERLESS_ACCESS_KEY'].includes(name))),
+      AWS_CONFIG_FILE: devNull, AWS_SHARED_CREDENTIALS_FILE: devNull, AWS_EC2_METADATA_DISABLED: 'true',
+    };
+    const run = (script: string, extra: string[]) => {
+      const preload = script === 'node_modules/serverless/bin/serverless.js' ? ['--import', './scripts/toolchain-compat.mjs'] : [];
+      const environment = extra[0] === 'deploy' ? process.env : buildEnvironment;
+      const child = spawnSync(process.execPath, [...preload, script, ...extra], { stdio: 'inherit', env: { ...environment, SLS_TELEMETRY_DISABLED: '1', SLS_DISABLE_AUTO_UPDATE: '1' } });
+      if (child.status !== 0) throw new DeploymentConfigurationError('Falló la verificación o el comando de despliegue');
+    };
+    run('node_modules/eslint/bin/eslint.js', ['.', '--max-warnings=0']);
+    run('scripts/prepare-assets.mjs', []);
+    run('node_modules/serverless/bin/serverless.js', ['package', ...args]);
+    run('scripts/lint-infrastructure.mjs', []);
+    run('scripts/verify-artifacts.mjs', []);
+    run('scripts/verify-runtime.mjs', []);
+    run('scripts/artifact-integrity.mjs', ['record']);
+    if (!values.execute) { console.info('Cuenta y configuración verificadas. Artefactos preparados; no se desplegó infraestructura.'); return; }
+    run('scripts/audit-dependencies.mjs', []);
+    run('scripts/artifact-integrity.mjs', ['check']);
+    run('node_modules/serverless/bin/serverless.js', ['deploy', '--package', '.serverless', ...args]);
+  });
 }
 try { await main(); } catch (error) {
   // No mostrar objetos SDK ni contenido de archivos de configuración.

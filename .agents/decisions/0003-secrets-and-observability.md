@@ -1,6 +1,6 @@
 # 0003 — Secretos en ejecución y errores observables
 
-Fecha: 2026-10-22. Estado: aceptada en el plan solicitado por el usuario.
+Fecha: 2026-10-22. Estado: sustituida parcialmente por [ADR 0007](0007-single-devops-security-secret.md) para propiedad y separación de secretos/KMS; recuperación en ejecución y observabilidad vigentes.
 
 ## Contexto y decisión
 

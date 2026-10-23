@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { randomBytes } from 'node:crypto';
+import { jwtSigningKey } from '../src/core/security-fields.js';
 import { loadConfig } from '../src/core/config.js';
 import { createApplication } from '../src/http/application.js';
 import { Authentication } from '../src/domain/auth.js';
@@ -10,11 +10,11 @@ import { DigitalCoupons } from '../src/infrastructure/providers.js';
 import { transport } from '../src/infrastructure/http.js';
 
 if (!process.env.LOCAL_CLIENT_ID || !process.env.LOCAL_CLIENT_SECRET) throw new Error('Configurar LOCAL_CLIENT_ID y LOCAL_CLIENT_SECRET para el servidor local');
-const config = { ...loadConfig(), authSecret: 'local-auth', signingSecret: 'local-signing', generateMock: true };
-const signingKey = randomBytes(48).toString('base64');
+const config = { ...loadConfig(), securitySecret: 'local/security', generateMock: true };
+const credentials = { jwt_clientId: process.env.LOCAL_CLIENT_ID, jwt_clientSecret: process.env.LOCAL_CLIENT_SECRET };
+jwtSigningKey(credentials);
 const secrets: SecretReader = { async get<T extends Record<string, unknown>>(id: string) {
-  if (id === 'local-signing') return { keyBase64: signingKey } as unknown as T;
-  if (id === 'local-auth') return { clientId: process.env.LOCAL_CLIENT_ID, clientSecret: process.env.LOCAL_CLIENT_SECRET } as unknown as T;
+  if (id === config.securitySecret) return credentials as unknown as T;
   throw new Error('El servidor local solo utiliza integraciones simuladas');
 } };
 const generate = new DigitalCoupons(config, secrets, transport(5000));

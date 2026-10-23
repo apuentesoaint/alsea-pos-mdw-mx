@@ -1,0 +1,50 @@
+Description: "Middleware Cuponera: Node.js 24, ESM y SDK v3; conservar contratos Java y datos al reemplazar recursos."
+Metadata:
+  AWSToolsMetrics:
+    AWSAgentToolkit: aws-cloudformation@3
+Parameters:
+  GatewayLogsRoleArn:
+    Type: String
+    Default: ${self:custom.gatewayLogsRoleArn}
+    Description: ARN del rol regional existente; vacío crea el rol de este stack.
+    AllowedPattern: '^$|^arn:[a-z0-9-]+:iam::[0-9]{12}:role/.+$'
+  SecuritySecretKmsKeyArn:
+    Type: String
+    Default: ${self:custom.securitySecretKmsKeyArn}
+    Description: ARN de la clave KMS del secreto externo; vacío para aws/secretsmanager.
+    AllowedPattern: '^$|^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:key/[a-zA-Z0-9-]+$'
+Conditions:
+  HasSecuritySecretKmsKey:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: SecuritySecretKmsKeyArn
+          - ""
+  IsProduction:
+    Fn::Equals:
+      - ${sls:stage}
+      - prod
+  CreateGatewayLogsRole:
+    Fn::Equals:
+      - Ref: GatewayLogsRoleArn
+      - ""
+  UseExistingGatewayLogsRole:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: GatewayLogsRoleArn
+          - ""
+extensions:
+  ApiGatewayRestApi:
+    DependsOn:
+      - ApiGatewayAccount
+Outputs:
+  SecuritySecretName:
+    Value: ${self:provider.environment.SECURITY_SECRET_ID}
+  TransactionsPOSName:
+    Value:
+      Ref: TransactionsPOS
+  DetailsBucketName:
+    Value:
+      Ref: DetailsBucket
+  MigrationPolicyArn:
+    Value:
+      Ref: MigrationPolicy

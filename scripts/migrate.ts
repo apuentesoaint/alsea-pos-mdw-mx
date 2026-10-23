@@ -5,12 +5,13 @@ import { createInterface } from 'node:readline';
 import { parseArgs } from 'node:util';
 import { createHmac, randomBytes } from 'node:crypto';
 import sql from 'mssql';
-import { CachedSecrets } from '../src/infrastructure/secrets.js';
+import { readPrivateJson } from './private-json.js';
+import { validateSqlConfiguration } from './sql-configuration.js';
 import { DynamoTransactions } from '../src/infrastructure/repository.js';
 import type { Transaction } from '../src/core/types.js';
 import { mapSql, validateTransaction } from './migration-model.js';
 
-const { values } = parseArgs({ options: { file: { type: 'string' }, export: { type: 'string' }, apply: { type: 'boolean', default: false },
+const { values } = parseArgs({ options: { file: { type: 'string' }, 'sql-config': { type: 'string' }, export: { type: 'string' }, apply: { type: 'boolean', default: false },
   reconcile: { type: 'boolean', default: false }, 'writes-stopped': { type: 'boolean', default: false }, 'sql-time-zone': { type: 'string', default: 'America/Mexico_City' } } });
 if (Number(process.versions.node.split('.')[0]) !== 24) throw new Error('Se requiere Node.js 24');
 if (values.apply && !values['writes-stopped']) throw new Error('El corte requiere --writes-stopped después de detener escrituras del Java');
@@ -40,14 +41,15 @@ async function consume(transaction: Transaction): Promise<void> {
   count++;
 }
 async function main(): Promise<void> {
+  if (values.file && values['sql-config']) throw new Error('Indicar solo una fuente: --file o --sql-config');
+  if (values.file && values.export) throw new Error('--export requiere --sql-config');
   if (values.file) {
     const lines = createInterface({ input: createReadStream(values.file), crlfDelay: Infinity });
     for await (const line of lines) if (line.trim()) await consume(JSON.parse(line) as Transaction);
   } else {
-    if (!process.env.MIGRATION_SECRET_ARN) throw new Error('Configurar MIGRATION_SECRET_ARN o utilizar --file');
-    const secret = await new CachedSecrets().get(process.env.MIGRATION_SECRET_ARN);
-    const required = ['host', 'username', 'password', 'dbname'];
-    if (required.some(field => typeof secret[field] !== 'string' || !secret[field])) throw new Error('Secreto SQL incompleto');
+    if (!values['sql-config']) throw new Error('Indicar --file o --sql-config; el secreto único de la API no contiene conexión SQL');
+    const secret = await readPrivateJson(values['sql-config']);
+    validateSqlConfiguration(secret);
     const pool = await new sql.ConnectionPool({ server: String(secret.host), database: String(secret.dbname), user: String(secret.username), password: String(secret.password),
       port: Number(secret.port ?? 1433), pool: { max: 2, min: 0 }, options: { encrypt: true, trustServerCertificate: false, useUTC: true } }).connect();
     let output: Awaited<ReturnType<typeof open>> | undefined;

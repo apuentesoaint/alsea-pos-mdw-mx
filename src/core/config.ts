@@ -1,6 +1,5 @@
 export interface Config {
-  stage: string; table: string; bucket: string; authSecret: string; signingSecret: string;
-  cuponeraSecret: string; starbucksSecret: string; secretCacheMs: number;
+  stage: string; table: string; bucket: string; securitySecret: string; secretCacheMs: number;
   tokenUrl: string; validateUrl: string; redeemUrl: string; generateUrl: string;
   starbucksUrl: string; starbucksVersion: string; starbucksTokenPath: string; starbucksCouponPath: string;
   httpTimeoutMs: number; jwtTtlSeconds: number; generateMock: boolean;
@@ -14,8 +13,7 @@ function integer(name: string, fallback: number): number {
 export function loadConfig(): Readonly<Config> {
   return Object.freeze({
     stage: process.env.STAGE ?? 'dev', table: process.env.TRANSACTIONS_TABLE ?? '', bucket: process.env.DETAILS_BUCKET ?? '',
-    authSecret: process.env.AUTH_SECRET_ARN ?? '', signingSecret: process.env.SIGNING_SECRET_ARN ?? '',
-    cuponeraSecret: process.env.CUPONERA_SECRET_ARN ?? '', starbucksSecret: process.env.STARBUCKS_SECRET_ARN ?? '',
+    securitySecret: process.env.SECURITY_SECRET_ID ?? '',
     secretCacheMs: integer('SECRET_CACHE_SECONDS', 300) * 1000,
     tokenUrl: process.env.CUPONERA_URI_TOKEN ?? '', validateUrl: process.env.CUPONERA_URI_VALIDATE_V1 ?? '',
     redeemUrl: process.env.CUPONERA_URI_REDEEM_V1 ?? '', generateUrl: process.env.CUPONERA_URI_GENERATE ?? '',

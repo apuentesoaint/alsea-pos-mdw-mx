@@ -2,11 +2,49 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { parse } from 'yaml';
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const configuration = parse(readFileSync('serverless.yml', 'utf8'));
-const { resources } = await import(pathToFileURL(resolve('infra/resources.js')).href);
+// Leer solo las inclusiones YAML; la resolución completa se verifica al empaquetar.
+function include(reference: string) {
+  const match = /^\$\{file\((\.\/infra\/[\w/.-]+\.yml)\)\}$/.exec(reference);
+  assert.ok(match, `Inclusión YAML esperada: ${reference}`);
+  return parse(readFileSync(match[1]!, 'utf8'));
+}
+configuration.functions = include(configuration.functions);
+configuration.custom.esbuild = include(configuration.custom.esbuild);
+const fragments = configuration.resources.map(include);
+const resources = { Resources: Object.assign({}, ...fragments.map((fragment: any) => fragment.Resources ?? {})) };
+
+test('el rol regional de logs se propaga como parámetro validado en creación y actualización', () => {
+  const stack = fragments.find((fragment: any) => fragment.Parameters?.GatewayLogsRoleArn);
+  assert.ok(stack);
+  const parameter = stack.Parameters.GatewayLogsRoleArn;
+  const pattern = new RegExp(parameter.AllowedPattern);
+  assert.ok(pattern.test(''));
+  assert.ok(pattern.test('arn:aws:iam::123456789012:role/example'));
+  assert.ok(!pattern.test('invalid-role'));
+  assert.deepEqual(stack.Conditions.CreateGatewayLogsRole['Fn::Equals'][0], { Ref: 'GatewayLogsRoleArn' });
+  assert.deepEqual(resources.Resources.ApiGatewayAccount.Properties.CloudWatchRoleArn['Fn::If'][1], { Ref: 'GatewayLogsRoleArn' });
+  assert.deepEqual(configuration.provider.stackParameters, [{ ParameterKey: 'GatewayLogsRoleArn', ParameterValue: '${param:gatewayLogsRoleArn}' }, { ParameterKey: 'SecuritySecretKmsKeyArn', ParameterValue: '${param:securitySecretKmsKeyArn}' }]);
+});
+
+test('los módulos YAML no duplican recursos ni contienen configuración externa de entorno', () => {
+  const names = fragments.flatMap((fragment: any) => Object.keys(fragment.Resources ?? {}));
+  assert.equal(names.length, new Set(names).size);
+  for (const reference of configuration.resources) {
+    assert.ok(!JSON.stringify(include(reference)).includes('${param:'), 'Los parámetros se centralizan en serverless.yml');
+  }
+  assert.ok(resources.Resources.TransactionsPOS);
+  assert.ok(!resources.Resources.TransactionsTable);
+});
+test('qa y prod requieren sustituir los endpoints dummy y no heredan stage del Java', () => {
+  for (const stage of ['qa', 'prod']) {
+    const settings = { ...configuration.params.default, ...configuration.params[stage] };
+    for (const key of ['cuponeraTokenUrl', 'cuponeraValidateUrl', 'cuponeraRedeemUrl', 'cuponeraGenerateUrl', 'starbucksBaseUrl']) assert.ok(new URL(settings[key]).hostname.endsWith('.invalid'));
+  }
+  assert.equal(configuration.params.dev.cuponeraGenerateUrl, 'https://stage.cupones.alsea.com.mx/ext/WSCupones/cupones-api/v1/cupones/generarCuponSocioText');
+  for (const key of ['cuponeraTokenUrl', 'cuponeraValidateUrl', 'cuponeraRedeemUrl']) assert.ok(new URL(configuration.params.dev[key]).hostname.endsWith('.invalid'));
+});
 test('configuración fija Node.js 24, Framework 3.40.0 y empaquetado ESM', () => {
   assert.equal(configuration.frameworkVersion, '3.40.0'); assert.equal(configuration.provider.runtime, 'nodejs24.x');
   assert.equal(configuration.configValidationMode, 'error'); assert.equal(configuration.custom.esbuild.target, 'node24');
@@ -25,9 +63,27 @@ test('logs del gateway no registran cuerpos y no habilitan CORS indiscriminado',
   assert.ok(!JSON.stringify(configuration.provider.logs).toLowerCase().includes('authorization'));
   assert.ok(Object.values(configuration.functions).every((fn: unknown) => !JSON.stringify(fn).includes('"cors":true')));
 });
-test('variables de entorno contienen referencias de secretos, sin credenciales en texto', () => {
-  for (const name of ['AUTH_SECRET_ARN', 'SIGNING_SECRET_ARN', 'CUPONERA_SECRET_ARN', 'STARBUCKS_SECRET_ARN']) assert.ok(configuration.provider.environment[name].Ref);
-  assert.ok(!Object.keys(configuration.provider.environment).some(name => /PASSWORD|CLIENTSECRET|ACCESS_KEY/.test(name)));
+test('el stack consume un solo secreto externo y acota IAM y KMS', () => {
+  assert.equal(configuration.provider.environment.SECURITY_SECRET_ID, '${param:securitySecretName}');
+  assert.equal(configuration.params.default.securitySecretName, 'cuponera-api-security/${sls:stage}/aws-mdw');
+  assert.equal(configuration.params.default.securitySecretKmsKeyArn, '');
+  assert.equal(configuration.custom.secretPayloadTemplates, undefined);
+  assert.ok(!Object.keys(configuration.provider.environment).some(name => /PASSWORD|CLIENTSECRET|ACCESS_KEY|SECRET_ARN/.test(name)));
+  for (const resource of Object.values(resources.Resources) as any[]) assert.ok(!['AWS::SecretsManager::Secret', 'AWS::KMS::Key'].includes(resource.Type));
+  for (const name of ['AuthRole', 'ValidateRole', 'RedeemRole', 'GenerateRole', 'LatestRole', 'TechnicalRole']) {
+    const statements = resources.Resources[name].Properties.Policies[0].PolicyDocument.Statement;
+    const read = statements.filter((statement: any) => statement.Action?.includes('secretsmanager:GetSecretValue'));
+    assert.equal(read.length, 1);
+    assert.equal(read[0].Resource, '${self:custom.securitySecretArn}');
+    assert.equal(read[0].Condition.Bool['aws:SecureTransport'], 'true');
+    const decrypt = statements.find((statement: any) => statement['Fn::If'])['Fn::If'];
+    assert.equal(decrypt[0], 'HasSecuritySecretKmsKey');
+    assert.deepEqual(decrypt[1].Resource, { Ref: 'SecuritySecretKmsKeyArn' });
+    assert.equal(decrypt[1].Condition.StringLike['kms:EncryptionContext:SecretARN'], '${self:custom.securitySecretArn}');
+    assert.deepEqual(decrypt[2], { Ref: 'AWS::NoValue' });
+  }
+  assert.ok(configuration.custom.securitySecretArn['Fn::Sub'].endsWith(':secret:${param:securitySecretName}-??????'));
+  assert.ok(!JSON.stringify(resources.Resources.MigrationPolicy).includes('secretsmanager:'));
 });
 test('alarma DynamoDB usa dimensiones publicadas y retiene la política del bucket retenido', () => {
   const map = resources.Resources;

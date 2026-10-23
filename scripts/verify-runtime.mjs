@@ -26,10 +26,8 @@ globalThis.fetch = (url, options) => {
 
 const records = new Map(); const objects = new Map(); const calls = new Map();
 const secrets = {
-  'local/auth': { clientId: randomBytes(12).toString('hex'), clientSecret: randomBytes(24).toString('hex') },
-  'local/signing': { keyBase64: randomBytes(48).toString('base64') },
-  'local/cuponera': { basic: 'LOCAL_SIMULATION' },
-  'local/starbucks': { clientId: 'LOCAL_SIMULATION', clientSecret: 'LOCAL_SIMULATION' },
+  'local/security': { jwt_clientId: randomBytes(12).toString('hex'), jwt_clientSecret: randomBytes(32).toString('hex'),
+    cuponera_mx_credential: 'LOCAL_SIMULATION', sbx_client: 'LOCAL_SIMULATION', sbx_secret: 'LOCAL_SIMULATION' },
 };
 const key = value => `${value.PK.S}\u0000${value.SK.S}`;
 const server = http.createServer(async (request, response) => {
@@ -80,7 +78,7 @@ Object.assign(process.env, {
   AWS_REGION: 'us-east-1', AWS_ACCESS_KEY_ID: 'LOCAL_SIMULATION', AWS_SECRET_ACCESS_KEY: randomBytes(32).toString('hex'), AWS_SESSION_TOKEN: '',
   AWS_EC2_METADATA_DISABLED: 'true', AWS_IGNORE_CONFIGURED_ENDPOINT_URLS: 'false',
   AWS_ENDPOINT_URL: base, AWS_ENDPOINT_URL_DYNAMODB: base, AWS_ENDPOINT_URL_S3: base, AWS_ENDPOINT_URL_SECRETS_MANAGER: base,
-  AUTH_SECRET_ARN: 'local/auth', SIGNING_SECRET_ARN: 'local/signing', CUPONERA_SECRET_ARN: 'local/cuponera', STARBUCKS_SECRET_ARN: 'local/starbucks',
+  SECURITY_SECRET_ID: 'local/security',
   TRANSACTIONS_TABLE: 'local-table', DETAILS_BUCKET: 'local-bucket', CUPONERA_URI_TOKEN: `${base}/provider/token`,
   CUPONERA_URI_VALIDATE_V1: `${base}/provider/coupons/`, CUPONERA_URI_REDEEM_V1: `${base}/provider/redeem`, CUPONERA_URI_GENERATE: `${base}/provider/generate`,
   APISBX_URI: base, APISBX_VERSION: '/sbx', APISBX_PATH_TOKEN: '/token', APISBX_PATH_SERVICE_COUPONS: '/coupons', GENERATE_MOCK: 'false',
@@ -99,7 +97,7 @@ try {
   const unacceptable = await handlers.technical({ httpMethod: 'GET', path: '/coupons/healthcheck', body: null, headers: { Accept: 'text/plain' } });
   assert.equal(unacceptable.statusCode, 406);
   assert.equal(JSON.parse(unacceptable.body).detail, 'Acceptable representations: [application/json].');
-  const login = await invoke('auth', '/auth/token', 'POST', secrets['local/auth']);
+  const login = await invoke('auth', '/auth/token', 'POST', { clientId: secrets['local/security'].jwt_clientId, clientSecret: secrets['local/security'].jwt_clientSecret });
   assert.equal(login.statusCode, 200); const token = JSON.parse(login.body).accessToken; assert.ok(token);
   const request = { countryId: 1, brandId: 11, storeId: 1, posId: 1, orderNumber: 1, couponCode: 'LOCAL001', typeOrder: '1', totalOrder: 100,
     itemsOrder: [{ idItem: 1, familyId: 1, quantity: 1, amount: 100, comment: 'x'.repeat(301 * 1024) }] };
