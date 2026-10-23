@@ -14,11 +14,6 @@ provider:
   runtime: nodejs24.x
   region: us-east-1
   stage: ${opt:stage, 'dev'}
-  stackParameters:
-    - ParameterKey: GatewayLogsRoleArn
-      ParameterValue: ${param:gatewayLogsRoleArn}
-    - ParameterKey: SecuritySecretKmsKeyArn
-      ParameterValue: ${param:securitySecretKmsKeyArn}
   architecture: arm64
   memorySize: 512
   timeout: 28

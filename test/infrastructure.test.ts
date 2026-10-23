@@ -25,7 +25,10 @@ test('el rol regional de logs se propaga como parámetro validado en creación y
   assert.ok(!pattern.test('invalid-role'));
   assert.deepEqual(stack.Conditions.CreateGatewayLogsRole['Fn::Equals'][0], { Ref: 'GatewayLogsRoleArn' });
   assert.deepEqual(resources.Resources.ApiGatewayAccount.Properties.CloudWatchRoleArn['Fn::If'][1], { Ref: 'GatewayLogsRoleArn' });
-  assert.deepEqual(configuration.provider.stackParameters, [{ ParameterKey: 'GatewayLogsRoleArn', ParameterValue: '${param:gatewayLogsRoleArn}' }, { ParameterKey: 'SecuritySecretKmsKeyArn', ParameterValue: '${param:securitySecretKmsKeyArn}' }]);
+  // Sin provider.stackParameters: Serverless 3 los envía también al crear el stack inicial y CloudFormation lo rechaza.
+  assert.equal(configuration.provider.stackParameters, undefined);
+  assert.equal(parameter.Default, '${self:custom.gatewayLogsRoleArn}');
+  assert.equal(stack.Parameters.SecuritySecretKmsKeyArn.Default, '${self:custom.securitySecretKmsKeyArn}');
 });
 
 test('los módulos YAML no duplican recursos ni contienen configuración externa de entorno', () => {
