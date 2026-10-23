@@ -20,7 +20,15 @@ Antes del cambio, `serverless.yml` declaraba las funciones y `infra/resources.js
 | `infra/resources/gateway.yml` | Cuenta/rol de logging, grupo de ejecución y respuestas de error. |
 | `infra/resources/observability.yml` | Alarmas de aplicación, DynamoDB y Lambda, latencia y dashboard. |
 
-Los plugins ESM conservan únicamente lógica necesaria del framework: `node24.mjs` amplía su validación del runtime; `infrastructure.mjs` añade la dependencia del grupo de logs al Deployment de API Gateway, cuyo identificador genera el framework. El adaptador de herramientas ESM sigue siendo necesario para las versiones fijadas.
+Los plugins ESM conservan únicamente lógica necesaria del framework: `node24.mjs` amplía su validación del runtime; `infrastructure.mjs` añade la dependencia del grupo de logs al Deployment de API Gateway y filtra los parámetros durante la creación provisional del stack. El adaptador de herramientas ESM sigue siendo necesario para las versiones fijadas.
+
+### Creación inicial y parámetros del stack
+
+Serverless 3.40.0 crea primero un stack provisional para el bucket de despliegue. Esa plantilla no declara `GatewayLogsRoleArn` ni `SecuritySecretKmsKeyArn`, pero el framework le pasa también `provider.stackParameters`. CloudFormation rechaza la solicitud con `Parameter values specified for a template which does not require them`; el stack puede no existir después del fallo.
+
+El plugin filtra esos parámetros antes de `aws:deploy:deploy:createStack` para enviar únicamente los declarados en la plantilla provisional, y restaura la lista original después de esa fase. La plantilla completa sigue recibiendo los valores explícitos, incluidos los vacíos y el rol regional existente, tanto en la primera instalación como en actualizaciones. Se aplica también a `deploy --package`; no requiere cambiar las URI ni crear manualmente el stack o el bucket. La regresión `test/bootstrap-deployment.test.ts` usa los métodos reales de Serverless con solicitudes AWS simuladas para creación directa, change sets y stacks existentes. La aceptación con AWS real queda pendiente.
+
+Comprobaciones de esta corrección: compilación, 13 pruebas dirigidas (bootstrap, flujo de despliegue e infraestructura), ESLint, tipos, empaquetado dev, cfn-lint (cero errores y siete advertencias existentes), inspección/carga de seis ZIP, simulación local del runtime y registro de integridad aprobados. No se ejecutó el despliegue AWS ni se renovó la auditoría npm o la suite completa; no se certificó compliance con cfn-guard.
 
 El tráfico entra por API Gateway REST Regional y llama directamente al handler de cada operación. Las rutas ANY permiten que autenticación y errores de métodos alternativos se procesen en la aplicación. Las Lambdas consultan sus secretos con SDK v3 y caché; los roles restringen la lectura al ARN del secreto único. DynamoDB guarda transacciones con PK/SK y recuperación puntual; S3 conserva detalles mayores de 300 KiB. No se añade VPC ni cambia el contrato HTTP.
 

@@ -47,13 +47,15 @@ Para una funcionalidad nueva, seguir el recorrido completo de la solicitud, no s
 | infra/stack.yml | Descripción/metadatos, parámetros, condiciones, outputs y extensión del gateway. |
 | infra/resources/storage.yml | DynamoDB/S3 y políticas de conservación; DevOps administra el secreto/KMS externo. |
 | infra/resources/iam.yml / gateway.yml / observability.yml | Roles por operación, logs/cuenta/respuestas del gateway, alarmas y dashboard. |
-| plugins/node24.mjs / infrastructure.mjs | Validación del runtime y orden del Deployment respecto al grupo de logs. |
+| plugins/node24.mjs / infrastructure.mjs | Validación del runtime, orden de logs y filtro temporal de parámetros para el stack provisional; regresión en test/bootstrap-deployment.test.ts. |
 
 `infra/resources.js` ya no existe. No reintroducir un generador para cambios declarativos rutinarios. Conservar `TransactionsPOS` y su output `TransactionsPOSName`; no restaurar el nombre previo por encontrarlo en informes históricos.
 
 Los ejemplos comentados de token/validate/redeem del Java permanecen como referencia documental; sus defaults son dummies también en dev. Solo generación tiene URL stage activa en dev. APISBX permanece pendiente; qa/prod no heredan stage. El secreto único externo y su clave KMS opcional se configuran con securitySecretName/securitySecretKmsKeyArn; se retiraron custom.secretPayloadTemplates y los contenedores anteriores. El [mapeo del origen](../../docs/serverless-infrastructure.md) conserva la procedencia sin valores sensibles.
 
 `GatewayLogsRoleArn` es un parámetro CloudFormation String validado, con vacío para creación o ARN existente para reutilización. `provider.stackParameters` lo transmite expresamente en actualizaciones; no confiar solo en cambiar un Default. Las fechas `Version: '2012-10-17'` de IAM deben ir entre comillas para evitar la conversión YAML a fecha.
+
+Serverless 3.40.0 pasa también stackParameters a la plantilla provisional del bucket, que no declara los parámetros propios: el primer despliegue falla. El plugin filtra la lista antes de createStack y la restaura después para la plantilla completa. Conservar ambos hooks, incluidos los vacíos explícitos de KMS. La regresión usa el createStack real del framework con AWS simulado; el reintento AWS no está certificado.
 
 ## Particularidades que deben preservarse
 

@@ -25,3 +25,7 @@ Análisis y trazabilidad: [infraestructura](../../docs/serverless-infrastructure
 ## Ajuste tras revisión detallada del 2026-10-23
 
 Los ejemplos comentados no acreditan valores activos: token, validate y redeem usan dummy también en dev. Solo generación conserva su URL activa de referencia. Las plantillas de secretos contienen exactamente los cinco payloads y comentarios YAML, sin campos auxiliares accidentales. La carga y el despliegue rechazan REPLACE_ME.
+
+### Compatibilidad de la creación inicial de Serverless 3.40.0
+
+Tras el fallo de despliegue reportado por el usuario, se amplía la responsabilidad del plugin local: filtrar `provider.stackParameters` durante `createStack` según los parámetros declarados en la plantilla provisional y restaurarlos antes de aplicar la plantilla completa. El código instalado reutiliza la misma lista para ambas plantillas, pero la provisional no declara los parámetros propios. Retirarlos definitivamente perdería overrides en actualizaciones; introducir recursos declarativos en el plugin contradiría esta decisión. Se mantienen los YAML y la versión del framework. La regresión usa los métodos reales del framework con AWS simulado; reintento real pendiente. Ver [infraestructura](../../docs/serverless-infrastructure.md#creación-inicial-y-parámetros-del-stack).
