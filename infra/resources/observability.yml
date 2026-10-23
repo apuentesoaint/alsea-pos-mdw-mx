@@ -1,0 +1,308 @@
+# Recursos del stack; configuración de entorno centralizada en serverless.yml.
+Resources:
+  TechnicalErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Revisar TechnicalErrors en CloudWatch Logs Insights.
+      Namespace: Cuponera
+      MetricName: TechnicalErrors
+      Dimensions:
+        - Name: Stage
+          Value: ${sls:stage}
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  UncertainRedemptionsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Revisar UncertainRedemptions en CloudWatch Logs Insights.
+      Namespace: Cuponera
+      MetricName: UncertainRedemptions
+      Dimensions:
+        - Name: Stage
+          Value: ${sls:stage}
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  ExternalErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Revisar ExternalErrors en CloudWatch Logs Insights.
+      Namespace: Cuponera
+      MetricName: ExternalErrors
+      Dimensions:
+        - Name: Stage
+          Value: ${sls:stage}
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  PersistenceErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Revisar PersistenceErrors en CloudWatch Logs Insights.
+      Namespace: Cuponera
+      MetricName: PersistenceErrors
+      Dimensions:
+        - Name: Stage
+          Value: ${sls:stage}
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  ThrottlesAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: ThrottledRequests requiere TableName y Operation; sumar las operaciones del middleware.
+      Metrics:
+        - Id: t0
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/DynamoDB
+              MetricName: ThrottledRequests
+              Dimensions:
+                - Name: TableName
+                  Value:
+                    Ref: TransactionsPOS
+                - Name: Operation
+                  Value: GetItem
+            Period: 60
+            Stat: Sum
+        - Id: t1
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/DynamoDB
+              MetricName: ThrottledRequests
+              Dimensions:
+                - Name: TableName
+                  Value:
+                    Ref: TransactionsPOS
+                - Name: Operation
+                  Value: Query
+            Period: 60
+            Stat: Sum
+        - Id: t2
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/DynamoDB
+              MetricName: ThrottledRequests
+              Dimensions:
+                - Name: TableName
+                  Value:
+                    Ref: TransactionsPOS
+                - Name: Operation
+                  Value: PutItem
+            Period: 60
+            Stat: Sum
+        - Id: t3
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/DynamoDB
+              MetricName: ThrottledRequests
+              Dimensions:
+                - Name: TableName
+                  Value:
+                    Ref: TransactionsPOS
+                - Name: Operation
+                  Value: TransactWriteItems
+            Period: 60
+            Stat: Sum
+        - Id: total
+          Expression: SUM(METRICS())
+          ReturnData: true
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  LambdaThrottlesAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Lambda Throttles: incluye fallos previos a la frontera de errores de aplicación."
+      Metrics:
+        - Id: m0
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Throttles
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-auth
+            Period: 60
+            Stat: Sum
+        - Id: m1
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Throttles
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-validate
+            Period: 60
+            Stat: Sum
+        - Id: m2
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Throttles
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-redeem
+            Period: 60
+            Stat: Sum
+        - Id: m3
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Throttles
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-generate
+            Period: 60
+            Stat: Sum
+        - Id: m4
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Throttles
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-latest
+            Period: 60
+            Stat: Sum
+        - Id: m5
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Throttles
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-technical
+            Period: 60
+            Stat: Sum
+        - Id: total
+          Expression: SUM(METRICS())
+          ReturnData: true
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  LambdaErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Lambda Errors: incluye fallos previos a la frontera de errores de aplicación."
+      Metrics:
+        - Id: m0
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-auth
+            Period: 60
+            Stat: Sum
+        - Id: m1
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-validate
+            Period: 60
+            Stat: Sum
+        - Id: m2
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-redeem
+            Period: 60
+            Stat: Sum
+        - Id: m3
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-generate
+            Period: 60
+            Stat: Sum
+        - Id: m4
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-latest
+            Period: 60
+            Stat: Sum
+        - Id: m5
+          ReturnData: false
+          MetricStat:
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions:
+                - Name: FunctionName
+                  Value: ${self:service}-${sls:stage}-technical
+            Period: 60
+            Stat: Sum
+        - Id: total
+          Expression: SUM(METRICS())
+          ReturnData: true
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  LatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: p95 mayor a 3 segundos durante dos minutos; hipótesis inicial de QA.
+      Namespace: Cuponera
+      MetricName: Duration
+      Dimensions:
+        - Name: Stage
+          Value: ${sls:stage}
+      ExtendedStatistic: p95
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 3000
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      EvaluateLowSampleCountPercentile: ignore
+  OperationsDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardBody: '{"widgets":[{"type":"metric","x":0,"y":0,"width":12,"height":6,"properties":{"title":"Errores de
+        aplicación","region":"us-east-1","stat":"Sum","period":60,"metrics":[["Cuponera","TechnicalErrors","Stage","${sls:stage}"],["Cuponera","ExternalErrors","Stage","${sls:stage}"],["Cuponera","PersistenceErrors","Stage","${sls:stage}"],["Cuponera","UncertainRedemptions","Stage","${sls:stage}"]]}},{"type":"metric","x":12,"y":0,"width":12,"height":6,"properties":{"title":"Latencia
+        p95/p99","region":"us-east-1","period":60,"metrics":[["Cuponera","Duration","Stage","${sls:stage}",{"stat":"p95"}],["Cuponera","Duration","Stage","${sls:stage}",{"stat":"p99"}]]}}]}'

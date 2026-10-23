@@ -1,0 +1,63 @@
+{
+  "name": "prj-cuponera-back-mdw-sls",
+  "version": "1.0.5",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "node scripts/build.mjs",
+    "test": "npm run build && node --test --test-concurrency=3 dist/test/*.test.mjs",
+    "package": "node --import ./scripts/toolchain-compat.mjs node_modules/serverless/bin/serverless.js package --stage dev",
+    "prepackage": "node scripts/prepare-assets.mjs",
+    "verify": "npm run lint && npm run typecheck && npm test && npm run package && npm run lint:infra && node scripts/verify-artifacts.mjs && node scripts/verify-runtime.mjs && node scripts/artifact-integrity.mjs record",
+    "serverless": "node --import ./scripts/toolchain-compat.mjs node_modules/serverless/bin/serverless.js",
+    "preserverless": "node scripts/prepare-assets.mjs",
+    "audit:dependencies": "node scripts/audit-dependencies.mjs",
+    "start": "npm run build && node dist/scripts/serve.mjs",
+    "baseline": "node scripts/java-baseline.mjs",
+    "migrate": "npm run build && node dist/scripts/migrate.mjs",
+    "secrets:put": "npm run build && node dist/scripts/seed-secrets.mjs",
+    "load": "npm run build && node dist/scripts/load.mjs",
+    "deploy": "npm run build && node dist/scripts/deploy.mjs",
+    "lint": "eslint . --max-warnings=0",
+    "setup:infra-lint": "python3 -m venv .cache/cfn-lint && .cache/cfn-lint/bin/python -m pip install -r requirements-dev.txt",
+    "lint:infra": "node scripts/lint-infrastructure.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "3.1155.0",
+    "@aws-sdk/client-s3": "3.1155.0",
+    "@aws-sdk/client-secrets-manager": "3.1155.0",
+    "@aws-sdk/lib-dynamodb": "3.1155.0",
+    "decimal.js": "10.6.0",
+    "jose": "6.2.13",
+    "swagger-ui-dist": "5.2.0",
+    "yaml": "2.9.1"
+  },
+  "overrides": {
+    "simple-git": "4.0.2",
+    "tar": "7.5.22",
+    "adm-zip": "0.6.1",
+    "decompress": "npm:@xhmikosr/decompress@11.1.4",
+    "uuid": "11.1.1",
+    "file-type@^16.5.4": "21.3.4",
+    "file-type@>=20 <22": "21.3.4"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-api-gateway": "3.1155.0",
+    "@aws-sdk/client-sts": "3.1155.0",
+    "@eslint/js": "10.0.1",
+    "@types/aws-lambda": "8.10.161",
+    "@types/mssql": "9.1.8",
+    "@types/node": "24.10.1",
+    "esbuild": "0.28.2",
+    "eslint": "10.13.0",
+    "globals": "17.13.0",
+    "mssql": "12.7.11",
+    "serverless": "3.40.0",
+    "serverless-esbuild": "1.57.2",
+    "typescript": "7.0.2"
+  }
+}

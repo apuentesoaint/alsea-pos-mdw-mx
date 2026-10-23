@@ -1,0 +1,538 @@
+{
+  "analysis": "static-only",
+  "javaExecuted": false,
+  "files": [
+    {
+      "path": "azure-pipelines.yml",
+      "sha256": "430cb3387f5ff57f154ea2cf51e452b27e20bd480e194361ead2265103e89b67",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "pom.xml",
+      "sha256": "a1bd4f42752efbb2d65382cf6f0a7e6cf2f7aa829f43b4d038e76ad6467d455b",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/config/AppInsightsConfig.java",
+      "sha256": "49e5b1fa45a8eee03f148165743078dd2f0a186021ded71884e1d22aa2323f5c",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/config/ConnectDeliveryCoreBD.java",
+      "sha256": "572299f27404930db04c4983dce1632506bf0e10ff44e5ba0eb36eb6c75607ec",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/config/MetricsConfig.java",
+      "sha256": "0ecffb106616c9fe1362292e174e1deb2154850b363ee8dbb9a23916e1d4174a",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/config/OpenApiConfig.java",
+      "sha256": "8afdadb4c09cb60c6fe7c55921b288ccf5877fa2edf3e32492e70f8864361c5a",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/config/RequestNameHandlerInterceptor.java",
+      "sha256": "988e8458bd5840888a7580c46876f1b98b4572129b17029b9468c1f3ac0e557b",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/config/RestTemplateConfig.java",
+      "sha256": "bb166454c76e6889fd68e6fdfa5ff68b91a57942f741ddf6e88599ae37d102ff",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/config/WebConfig.java",
+      "sha256": "bcc053b5da8c093bfc7b94cde298cc95d676975d94e1255ea70d5bf271860e67",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/controller/AuthController.java",
+      "sha256": "25f0541c57c6c74053a7fdce8b57e2f4b05a3dfb478e56ae4353eb9778254eab",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/controller/CuponController.java",
+      "sha256": "791a16c93d86bc01e1b4c4b025851023d1f97cadd680cb44fbf3b42a1e2f907f",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/controller/TelemetryTestController.java",
+      "sha256": "b7ab814ce4cfc85a05434d89d05e7c51507ca6781aca107ca7b80743fb662800",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/ApiResponseDTO.java",
+      "sha256": "408097c7bbe9848e6427c127e6ee2b42a14e2b075c9de91a96ccb38b1112268b",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/ComboOrderDTO.java",
+      "sha256": "ada37d1dc7a14f206d6f246a4ba38a9d24402172239757298f92b04c1cf4ed62",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/GenerateCouponRequestDTO.java",
+      "sha256": "92b14ade416e48db6df762d288ac7bf5ba2f78f4c122a3702f70308a8717ca0f",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/GenerateCouponResponseDTO.java",
+      "sha256": "3c500c4b545552716952bd2e9c4f4f413545a6f2bbac11d3c5b94cb4c4b34a68",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/ItemOrderDTO.java",
+      "sha256": "c0fa569f1bb705775ceb882ebf7e6ba8472c6e28983203ce0d01c4aa4dff5bfd",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/JwtTokenDTO.java",
+      "sha256": "93016faac7a7d1ff542e0ae55537c7c76f3e6cf907841b0809eff10f1681b1f0",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/MetaErrorDTO.java",
+      "sha256": "ab944aab26a6f22b91c632896f1ffc765afaef9e94083e6b43abd3857312211c",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/ModifierOrderDTO.java",
+      "sha256": "cf04e2adc97879a4bbd028c7cbc6bce01bffd6bd81184e458089f241b2b98eee",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/PaymentsMethods.java",
+      "sha256": "7bb56c85bb3254a800c79880a014e8c8346276e7eac10b4afad87d7a8ae9718d",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/RedeemCouponDTO.java",
+      "sha256": "ac1b9747ead5c9ae711b8e585a91c3146a42db005f0d9c97fea0960e98a74b15",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/Rules2x1DTO.java",
+      "sha256": "ee95f327d76712680e207d6ab87b4e33462b4390bffc29cee8ceaf0b820c8fcc",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/starbucks/StarbucksCouponResponse.java",
+      "sha256": "bea79fdc42ee63e690372409fa24f82c7a1069ac4be245345a4035117c1a04d5",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/starbucks/StarbucksTokenResponse.java",
+      "sha256": "0a4d2f7f867e8b0ecf80be807632d5f0c5b675b6c4cad79ed9cf3d7f8be796c0",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/TransactionStatusDTO.java",
+      "sha256": "579636a322d4ee65f65ecf419eb2fabba4bbef1fba86235b40a92cddeebf6895",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/dto/ValidateCouponDTO.java",
+      "sha256": "4c2e137edee19cd62204c96979bbdebb5ec4c81f8ac4d18418c26e5c16588aa0",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/entities/SucursalDTO.java",
+      "sha256": "5e2e6e7ca84f2d32ffcee3b24ccf93d4f768e5d24ca872c074a718268e6a8c79",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/entities/TransaccionesDTO.java",
+      "sha256": "c0ab6ba8b4060c4667e3459b8c6b5939f8951e4e6da951eaaa416287f21ae393",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/enums/BrandEnum.java",
+      "sha256": "d479b7cce2cc0af5b802d32b8f8b81efa9796438d4981fd1369eb4f8d282bff1",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/enums/CodeErrorEnum.java",
+      "sha256": "f53f3b87df1a1d26540806315e9beb93eab679325062a48748e388c426158b1e",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/enums/CountryEnum.java",
+      "sha256": "1a19620c91467135842e516307cf8be2732740e9466f11f4aaabeea475d33be4",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/enums/PromotionTypeEnum.java",
+      "sha256": "8298a2a74a89915cd410856a8a04c5b7b46da710b875f13ee1f5a2045b6e1d2b",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/enums/RestrictionEnum.java",
+      "sha256": "143ca2f2f287b055553c8672724bef29ce92d76088ae29d234af5f79387b450d",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/exception/GlobalExceptionHandler.java",
+      "sha256": "0e495087bbcf852be8c43444e06fbcdef6745464665ea061d8ab46d380f9b0b6",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/exception/MySqlException.java",
+      "sha256": "d58b6767b8f944603ec1c1816a583a748aa4f1be87e776753e709c246c98ceda",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/exception/TechnicalException.java",
+      "sha256": "7cb52454aa108df37e25e62d4eb3f62f2aa72e8c48532a63eb97e9b00ac57b44",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/filter/RequestAndResponseLoggingFilter.java",
+      "sha256": "396735148167483ebea7972ecb129b70ad393d04d0672ee9234e4f108a7f5424",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/interceptor/LoggingInterceptor.java",
+      "sha256": "e18bb8d43aef0291175544b282e708a7df456696e68af09cd4bba4ebca9f2b9f",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/model/cuponredeem/CuponRedeemReq.java",
+      "sha256": "7b753f62c69eee7835e943c9e155320637f8c6e9b8d9f2524ec542604f7284ea",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/model/cuponredeem/CuponRedeemResp.java",
+      "sha256": "ad4613ed8cb8962ef744487579c9406deadff05035b2ae5da14639a65da1e449",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/model/cupontoken/CuponTokenResp.java",
+      "sha256": "55aa939e7bc85d0b35dfe8e90c204d539aa6535d1a8236f57affa3a808dfb361",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/model/cuponvalidate/CampoAdicion2DTO.java",
+      "sha256": "695306775d694dfcdee4ae1e39fb3e210e0bff85895dce782a27959d6d11ee63",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/model/cuponvalidate/CuponValidateReq.java",
+      "sha256": "87db1f931709ca7cb45d8a303456332cee233f1b2c6388a377dbeb7d2902712f",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/model/cuponvalidate/CuponValidateResp.java",
+      "sha256": "075cf9e52f536212c8888a613fd79cbeb26a0f9ece34174d853c5280240bccd9",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/model/JwtRespModel.java",
+      "sha256": "762f4d463f66b63890cb04dc1481376e8fb98ecebf370a04b814e2c09fc84b3a",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/model/RedeemRespModel.java",
+      "sha256": "6fcae74cdfa128ccf3dcd8105b8337161e94ca37f7825f63029aab9ab0029e2e",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/model/ValidateRespModel.java",
+      "sha256": "a34944b0e5ed5d00d53b293818f153ca38d40300858c7ec00db9c6dde14d2465",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/MsadmincuponApplication.java",
+      "sha256": "9d0118324146623855abbff623a80ffa7a42c2a2a3782ec8bf99e3d343d9c92e",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/repository/impl/SucursalRepositoryImpl.java",
+      "sha256": "7371a762885daf22b29f02fab4718e65316097c6c452db0b59e8e348b1ba0c90",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/repository/impl/TapagoTransRepositoryImpl.java",
+      "sha256": "b2ec436f3db37e712999587767790059fb2a220ac3c8a28b87071a6af25183f7",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/repository/impl/TransaccionesRepositoryImpl.java",
+      "sha256": "d385716c8eb26e0c53d00a47fdc823b3f70a7b1e9046b360ec2ed5a624188c8e",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/repository/SucursalRepository.java",
+      "sha256": "d61ab4cad339f56d69bd2c4a790006930a050fa211caf3a9d0d6a9b4b098ab40",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/repository/TapagoTransRepository.java",
+      "sha256": "eb58d2417b6366a212296adc552d53eee03168629725bfa728c3922788ef70fc",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/repository/TransaccionesRepository.java",
+      "sha256": "38c03f47f1c1f8eddc841139c20e7c9859faf26744f65b06439695f686bf6140",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/security/JwtAuthenticationFilter.java",
+      "sha256": "af891bfb8daa8e0708c7a0bb0626dfdfb52bdb7d76a2e671123dc368d1627c4f",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/security/JwtTokenProvider.java",
+      "sha256": "382abdaf39519af38973ce9d56e9fd62eed2dde9d53526e5010bd2025b0eb0f0",
+      "environmentReferences": [],
+      "sensitiveLocations": [
+        17
+      ]
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/security/SecurityConfig.java",
+      "sha256": "274f7780c6291b0890e543079371cac9030af22c447618dd7fac54b924a33de7",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/service/AuthService.java",
+      "sha256": "d0ddc8fa44fcb75a4aafb63d39678c3e96145cfa5663ec3698c1910504372c82",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/service/CuponService.java",
+      "sha256": "cebb94efca0ca4389629c6a8081852ffdb3920028ad24d2e69b6e0160cff360c",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/service/impl/CuponServiceImpl.java",
+      "sha256": "e48f0a14e7f8971b475688632b6c8c658987035d30e68f84f99e77ee9b3cdc5e",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/service/impl/ValidacionServiceImpl.java",
+      "sha256": "f10f6400e0122d7b175ae28f6a4a8c26e887fe34e63c509f17a3ef53c4ccf8cf",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/service/StarbucksService.java",
+      "sha256": "4083f5eba7513bec801a5809492bf6f703cf9115793994bda2aae1e48a97f5c2",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/service/TelemetryService.java",
+      "sha256": "cee743ebf053d87a80a260e888f24240a73cad1876f50ed3520ed7be195fe600",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/service/TokenService.java",
+      "sha256": "5806689b5c0b9aa6222a818bb52f12cb9211441cdfa9d6725ad4ca73a2586b1e",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/service/ValidacionService.java",
+      "sha256": "e8ed731d5c878455b290cc7370f12b6099790c9a7a55a3b5b04b0b0ef51195ec",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/util/Constantes.java",
+      "sha256": "307e6bb2b201c4feb0259c6957019d55de5f8c4dd345ba7e8a3c60fc623a567a",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/util/CouponModify.java",
+      "sha256": "79f4a7dfdda1d7d7647a27d3f9f4ed0d5fc5739c3ba8062482339ba76b7339bd",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/util/ErrorMessages.java",
+      "sha256": "c18b219be8d227a0bb2001ed3185b9544515781737a39fc568e629198c754b37",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/util/GenerateUID.java",
+      "sha256": "7fb956cc5eca5abf7ae15ba5f0961e8ca1379227e1cfb52cfed4235e144165e8",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/util/Queries.java",
+      "sha256": "e564e26d9a97ce328c9bebeec8b9df36e374cbf102ba66047dffbc22d627d609",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/util/TransactionContext.java",
+      "sha256": "cbdd8a9122e685556117f95bf80533763a3c92ee4a1403fcf9177bb6fda9ac2a",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/util/Trimmed.java",
+      "sha256": "23aa1598d5c23dabf02ca751d0203027f7e30cea9ede14d2669efe1a01fddd5a",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/util/TrimmedValidator.java",
+      "sha256": "856a46ef99e69343b105fb0aeaa587415fe0853160f0d227d9c45b0501acb8b4",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/java/com/alsea/cupones/msadmincupon/util/UrlBuilder.java",
+      "sha256": "a5adbbc6d3d8cdc9791411aa2a312dc618de68c3da108ad392ab2afe8b6cc590",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/resources/application.properties",
+      "sha256": "756753680afc561d437daf64754931716b388b24a70ef79b5505ac3f0565247d",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/resources/application.yaml",
+      "sha256": "5fe732242a1a125295e333b0a8a415a448e6c5bcae937db77ac1c6748504dc98",
+      "environmentReferences": [
+        "KEY_INSIGHTS",
+        "BDCORE_URL",
+        "BDCORE_USER",
+        "BDCORE_PWD",
+        "CUPONERA_URI_TOKEN",
+        "CUPONERA_URI_VALIDATE_V1",
+        "CUPONERA_URI_VALIDATE_V2",
+        "CUPONERA_URI_REDEEM_V1",
+        "CUPONERA_URI_REDEEM_V2",
+        "CUPONERA_CRDENTIAL_BASIC",
+        "JWT_CLIENTID",
+        "JWT_CLIENTSECRET",
+        "APISBX_URI",
+        "APISBX_VERSION",
+        "APISBX_CLIENT",
+        "APISBX_SECRET",
+        "APISBX_PATH_TOKEN",
+        "APISBX_PATH_SERVICE_COUPONS"
+      ],
+      "sensitiveLocations": [
+        70,
+        87,
+        92
+      ]
+    },
+    {
+      "path": "src/main/resources/logback-spring.xml",
+      "sha256": "5d4c0136fa4036604f627c7b23aa9869770aadcfde593a734d2042fe2e310849",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/main/resources/settings.xml",
+      "sha256": "3fc8ef4f357cccf1ef009ada2f022e419914bfd92f061255827947a58b80ce30",
+      "environmentReferences": [],
+      "sensitiveLocations": [
+        8,
+        9
+      ]
+    },
+    {
+      "path": "src/test/java/com/alsea/cupones/msadmincupon/exception/GlobalExceptionHandlerTest.java",
+      "sha256": "94ad79b3c6da32ef53e8d74c9e6d1931fcb6005380f8a441204b45628d494390",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/test/java/com/alsea/cupones/msadmincupon/MsadmincuponApplicationTests.java",
+      "sha256": "58d4d74438b0bd8c3a04f3b43ff318be522f740a7de0f1675e86ad794ad4ce12",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/test/java/com/alsea/cupones/msadmincupon/service/impl/CuponServiceImplTest.java",
+      "sha256": "5b22b25968e79553d27ffc805d84272701de769fa8970895c02cddd90cf841b2",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/test/java/com/alsea/cupones/msadmincupon/service/impl/ValidacionServiceImplTest.java",
+      "sha256": "5e435feaf320a6e8bd56a6e1cfa876fc24e93c45dffd973b48db7b521bbab1a8",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    },
+    {
+      "path": "src/test/java/com/alsea/cupones/msadmincupon/util/GenerateUIDTest.java",
+      "sha256": "65d0d78793c6b8e32841f75b85920825e2fa1555e14c884120fcfefddccef394",
+      "environmentReferences": [],
+      "sensitiveLocations": []
+    }
+  ]
+}

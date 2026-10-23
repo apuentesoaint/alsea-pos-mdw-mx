@@ -1,0 +1,16 @@
+{
+  "accountId": "000000000000",
+  "parameters": {
+    "cuponeraTokenUrl": "https://cuponera.example.invalid/token",
+    "cuponeraValidateUrl": "https://cuponera.example.invalid/coupons/",
+    "cuponeraRedeemUrl": "https://cuponera.example.invalid/redeem",
+    "cuponeraGenerateUrl": "https://cuponera.example.invalid/generate",
+    "starbucksBaseUrl": "https://starbucks.example.invalid",
+    "starbucksVersion": "/v1",
+    "starbucksTokenPath": "/token",
+    "starbucksCouponPath": "/coupons",
+    "openapiDevUrl": "https://api-dev.example.invalid",
+    "openapiProdUrl": "https://api.example.invalid",
+    "publicBasePath": ""
+  }
+}

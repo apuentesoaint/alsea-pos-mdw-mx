@@ -1,0 +1,18 @@
+bundle: true
+format: esm
+platform: node
+target: node24
+outputFileExtension: .mjs
+mainFields:
+  - module
+  - main
+alias:
+  yaml: ./node_modules/yaml/browser/index.js
+minify: true
+keepNames: true
+sourcemap: true
+sourcesContent: false
+metafile: true
+exclude: []
+concurrency: 3
+zipConcurrency: 3

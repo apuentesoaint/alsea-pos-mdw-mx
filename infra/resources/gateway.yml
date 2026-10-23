@@ -1,0 +1,82 @@
+# Recursos del stack; configuración de entorno centralizada en serverless.yml.
+Resources:
+  ApiGatewayLoggingRole:
+    Type: AWS::IAM::Role
+    Condition: CreateGatewayLogsRole
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: GatewayLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:DescribeLogStreams
+                  - logs:PutLogEvents
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                Resource:
+                  - Fn::Sub: arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:API-Gateway-Execution-Logs_*
+                  - Fn::Sub: arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/*
+              - Effect: Allow
+                Action:
+                  - logs:DescribeLogGroups
+                Resource: "*"
+  ApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Reutilizar el rol regional existente o crear uno si no está configurado.
+        must:
+          - Validar el ARN mediante GatewayLogsRoleArn; conservar el rol compartido por cuenta y región.
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      CloudWatchRoleArn:
+        Fn::If:
+          - UseExistingGatewayLogsRole
+          - Ref: GatewayLogsRoleArn
+          - Fn::GetAtt:
+              - ApiGatewayLoggingRole
+              - Arn
+  GatewayExecutionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Retención explícita de los registros de ejecución del gateway.
+        must: []
+    Properties:
+      LogGroupName:
+        Fn::Sub: API-Gateway-Execution-Logs_${ApiGatewayRestApi}/${sls:stage}
+      RetentionInDays: ${self:custom.stageSettings.logRetention}
+  GatewayDefault4xx:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      ResponseType: DEFAULT_4XX
+      ResponseTemplates:
+        application/json: '{"uid":"$context.requestId","timestamp":"$context.requestTime","status":$context.status,"type":"error","message":"Solicitud
+          no procesada por el gateway.","helpUrl":"$context.resourcePath","success":false,"data":null}'
+  GatewayDefault5xx:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      ResponseType: DEFAULT_5XX
+      ResponseTemplates:
+        application/json: '{"uid":"$context.requestId","timestamp":"$context.requestTime","status":$context.status,"type":"error","message":"No
+          fue posible completar su solicitud. ","helpUrl":"$context.resourcePath","success":false,"data":null}'
