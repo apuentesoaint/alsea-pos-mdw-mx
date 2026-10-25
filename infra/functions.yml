@@ -24,6 +24,12 @@ validate:
     - http:
         method: any
         path: coupons/validate
+    - http:
+        method: post
+        path: coupons/pos/store
+    - http:
+        method: any
+        path: coupons/pos/store
 redeem:
   handler: src/handlers/redeem.handler
   role:
@@ -63,19 +69,6 @@ latest:
     - http:
         method: any
         path: coupons/transaction/latest
-store:
-  handler: src/handlers/latest.handler
-  role:
-    Fn::GetAtt:
-      - ValidateRole
-      - Arn
-  events:
-    - http:
-        method: post
-        path: coupons/pos/store
-    - http:
-        method: any
-        path: coupons/pos/store
 technical:
   handler: src/handlers/technical.handler
   role:
