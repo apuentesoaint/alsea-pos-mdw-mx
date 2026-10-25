@@ -1,0 +1,25 @@
+name: Sync to GitLab
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Sync Branch to GitLab
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          GITLAB_REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.com/grp-alsea/sgrp-cuponera/prj-cuponera-back-mdw-sls.git"
+          git push "$GITLAB_REPO_URL" "HEAD:refs/heads/${BRANCH_NAME}"

@@ -127,4 +127,12 @@ Tablas y detalles se retienen al eliminar o reemplazar recursos. DevOps administ
 - [review.md](docs/review.md): revisión detallada, correcciones y riesgos pendientes de herramientas de desarrollo y aceptación productiva.
 - [Decisiones](.agents/decisions/README.md) y [contexto para agentes](AGENTS.md).
 
+## Sincronización con GitLab
+
+El flujo de integración continua incluye la acción `.github/workflows/sync-gitlab.yml` que sincroniza las ramas hacia el repositorio de GitLab: `https://gitlab.com/grp-alsea/sgrp-cuponera/prj-cuponera-back-mdw-sls.git`.
+
+Para configurar la autenticación:
+1. Ir a la configuración del repositorio en GitHub (`Settings` > `Secrets and variables` > `Actions`).
+2. Crear un secreto con el nombre `GITLAB_TOKEN` y asignar como valor el Personal Access Token de GitLab con permisos de escritura.
+
 La referencia Java se analizó **solo estáticamente**, conforme a la instrucción del usuario. No se descargó JDK 21 ni se ejecutó Java tras esa instrucción. Las pruebas derivadas del código no constituyen una certificación diferencial contra el servicio Java desplegado ni contra proveedores reales.
