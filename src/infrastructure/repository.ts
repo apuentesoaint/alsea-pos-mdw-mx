@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, QueryCommand, PutCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import type { RedeemRequest, Transaction, TransactionRepository } from '../core/types.js';
+import type { RedeemRequest, StoreRequest, Transaction, TransactionRepository } from '../core/types.js';
 import { persistence, technical } from '../core/errors.js';
 import { javaInteger } from '../core/validation.js';
 import { log, metric } from '../core/logging.js';
@@ -113,5 +113,31 @@ export class DynamoTransactions implements TransactionRepository {
       await this.db.send(new PutCommand({ TableName: this.table, Item: { ...transactionKey(uid, branchId), SK: `ATTEMPT#${component(requestId)}`, state, updatedAt: new Date().toISOString() } }), { abortSignal: awsSignal() });
     } catch (cause) { metric('PersistenceErrors'); throw persistence(cause); }
     if (state === 'uncertain') metric('UncertainRedemptions');
+  }
+  async saveStore(store: StoreRequest): Promise<{ storeKey: string }> {
+    try {
+      const storeKey = `stores/country_${store.countryId}/brand_${store.brandId}/store_${store.storeId}.json`;
+      const storeData = JSON.stringify({ ...store, updatedAt: new Date().toISOString() }, null, 2);
+      await this.s3.send(new PutObjectCommand({ Bucket: this.bucket, Key: storeKey, Body: storeData, ContentType: 'application/json', ServerSideEncryption: 'AES256' }), { abortSignal: awsSignal() });
+
+      const catalogKey = 'stores/catalog.json';
+      let catalog: Record<string, unknown>[] = [];
+      try {
+        const existing = await this.s3.send(new GetObjectCommand({ Bucket: this.bucket, Key: catalogKey }), { abortSignal: awsSignal() });
+        if (existing.Body) {
+          const bodyStr = await existing.Body.transformToString();
+          catalog = JSON.parse(bodyStr);
+        }
+      } catch { catalog = []; }
+
+      const storeIdKey = `${store.countryId}-${store.brandId}-${store.storeId}`;
+      const index = catalog.findIndex(item => `${item.countryId}-${item.brandId}-${item.storeId}` === storeIdKey);
+      const updatedEntry = { ...store, storeKey, updatedAt: new Date().toISOString() };
+      if (index >= 0) { catalog[index] = updatedEntry; } else { catalog.push(updatedEntry); }
+
+      await this.s3.send(new PutObjectCommand({ Bucket: this.bucket, Key: catalogKey, Body: JSON.stringify(catalog, null, 2), ContentType: 'application/json', ServerSideEncryption: 'AES256' }), { abortSignal: awsSignal() });
+      log('info', 'persistence.completed', { operation: 'saveStore', storeKey });
+      return { storeKey };
+    } catch (cause) { metric('PersistenceErrors'); throw persistence(cause); }
   }
 }

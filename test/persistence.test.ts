@@ -106,6 +106,29 @@ test('migración conserva NULL históricos y referencias sin confundirlos con el
   const repository = new DynamoTransactions('table', 'bucket', { send: async (command: TransactWriteCommand) => { stored = command.input.TransactItems?.[1]?.Put?.Item?.value; return {}; } } as never);
   await repository.save(mapped); assert.equal(stored, null);
 });
+test('saveStore guarda individualmente y actualiza catálogo en S3 de forma idempotente', async () => {
+  const puts: { key: string; body: string }[] = [];
+  let catalogContent: string | null = null;
+  const repository = new DynamoTransactions('table', 'bucket', {} as never, {
+    send: async (command: PutObjectCommand | DeleteObjectCommand) => {
+      if (command instanceof PutObjectCommand) {
+        puts.push({ key: command.input.Key!, body: String(command.input.Body) });
+        if (command.input.Key === 'stores/catalog.json') catalogContent = String(command.input.Body);
+      }
+      return {};
+    },
+  } as never);
+
+  const storeReq = { countryId: 1, brandId: 11, storeId: 50, name: 'Sucursal Centro' };
+  const res1 = await repository.saveStore(storeReq);
+  assert.equal(res1.storeKey, 'stores/country_1/brand_11/store_50.json');
+  assert.equal(puts.length, 2);
+
+  // Segunda invocación con la misma tienda actualiza el catálogo idempotentemente
+  const res2 = await repository.saveStore({ ...storeReq, name: 'Sucursal Centro Actualizada' });
+  assert.equal(res2.storeKey, 'stores/country_1/brand_11/store_50.json');
+  assert.ok(catalogContent);
+});
 test('SDK recibe cancelación dentro del presupuesto Lambda y errores de detalle no se ocultan', async () => {
   requestContext.run({ transactionId: 't', requestId: 'r', route: 'test', deadline: Date.now() - 1 }, () => assert.equal(awsSignal().aborted, true));
   const repository = new DynamoTransactions('table', 'bucket', { send: async (command: GetCommand, options: { abortSignal?: AbortSignal }) => {

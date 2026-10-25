@@ -104,9 +104,11 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:PutObject
+                  - s3:GetObject
                   - s3:DeleteObjectVersion
                 Resource:
-                  Fn::Sub: ${DetailsBucket.Arn}/details/*
+                  - Fn::Sub: ${DetailsBucket.Arn}/details/*
+                  - Fn::Sub: ${DetailsBucket.Arn}/stores/*
   RedeemRole:
     Type: AWS::IAM::Role
     Metadata:
@@ -345,4 +347,5 @@ Resources:
               - s3:PutObject
               - s3:DeleteObjectVersion
             Resource:
-              Fn::Sub: ${DetailsBucket.Arn}/details/*
+              - Fn::Sub: ${DetailsBucket.Arn}/details/*
+              - Fn::Sub: ${DetailsBucket.Arn}/stores/*

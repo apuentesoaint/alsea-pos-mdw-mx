@@ -1,4 +1,4 @@
-import type { RedeemRequest, Transaction, TransactionRepository } from '../core/types.js';
+import type { RedeemRequest, StoreRequest, Transaction, TransactionRepository } from '../core/types.js';
 import { persistence } from '../core/errors.js';
 import { applyRedemption, pendingKey, transactionKey } from './repository.js';
 
@@ -27,4 +27,8 @@ export class MemoryTransactions implements TransactionRepository {
     this.records.set(key, applyRedemption(transaction, request));
   }
   async attempt(uid: string, branch: number, request: string, state: string): Promise<void> { this.attempts.set(`${uid}:${branch}:${request}`, state); }
+  async saveStore(store: StoreRequest): Promise<{ storeKey: string }> {
+    const storeKey = `stores/country_${store.countryId}/brand_${store.brandId}/store_${store.storeId}.json`;
+    return { storeKey };
+  }
 }

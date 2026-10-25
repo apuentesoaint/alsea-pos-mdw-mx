@@ -3,6 +3,7 @@
 Este directorio reúne requisitos y criterios de aceptación de funcionalidades.
 
 - [Migración AWS de Cuponera](aws-migration.md): requisitos acordados; implementación local y aceptación operativa pendiente.
+- [Endpoint POS Tienda BigBan](pos-store-bigban.md): especificación del nuevo endpoint POST `/coupons/pos/store` y su almacenamiento idempotente en S3.
 - [Infraestructura modular y controles de calidad](serverless-infrastructure-and-quality.md): requisitos confirmados en este chat, invariantes de YAML/configuración y validación; aceptación AWS pendiente.
 - [Saneamiento de dependencias](../../docs/dependency-remediation.md) y [compatibilidad HTTP](../../docs/http-parity.md): ejecución del plan aprobado, verificaciones y bloqueos residuales.
 

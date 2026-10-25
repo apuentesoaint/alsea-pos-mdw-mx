@@ -25,6 +25,16 @@ export interface GenerateRequest {
   request: { campaign_id: string; coupon_type: number; broadcast_channel: string; brandId: number; countryId: number };
   customer: { id: string; name: string; phoneCode?: string | null; phone?: string | null };
 }
+export interface StoreRequest {
+  countryId: number;
+  brandId: number;
+  storeId: number;
+  name?: string | null;
+  posList?: (number | string)[] | null;
+  active?: boolean | null;
+  metadata?: Record<string, unknown> | null;
+  [key: string]: unknown;
+}
 export interface ExternalCoupon {
   fcUID?: string | null; fcTokenRedencion: string | null;
   cupon: {
@@ -62,6 +72,7 @@ export interface TransactionRepository {
   latest(countryId: number, brandId: number, branchId: number, couponCode: string): Promise<Pick<Transaction, 'uid' | 'redemptionDate'> | undefined>;
   redeem(transaction: Transaction, request: RedeemRequest): Promise<void>;
   attempt(uid: string, branchId: number, requestId: string, state: 'started' | 'external-success' | 'committed' | 'uncertain'): Promise<void>;
+  saveStore(store: StoreRequest): Promise<{ storeKey: string }>;
 }
 export interface CouponProvider {
   validate(request: ValidateRequest, uid: string): Promise<ExternalCoupon>;
