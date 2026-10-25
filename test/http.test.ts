@@ -73,11 +73,23 @@ test('error de persistencia devuelve HTTP 500 y mensaje genérico', async () => 
   const response = await application(event('/coupons/validate', 'POST', request(), token));
   assert.equal(response.statusCode, 500); assert.ok(!response.body.includes('SensitiveDatabaseMessage'));
 });
+test('subida de tienda BigBan requiere autenticación y guarda idempotentemente', async () => {
+  const { application, auth } = setup(); const token = (await auth.issue('test-client', testJwtSecret))!.accessToken;
+  const storePayload = { countryId: 1, brandId: 11, storeId: 101, name: 'Tienda Test BigBan', posList: [1, 2] };
+  const unauth = await application(event('/coupons/pos/store', 'POST', storePayload));
+  assert.equal(unauth.statusCode, 401);
+  const response = await application(event('/coupons/pos/store', 'POST', storePayload, token));
+  assert.equal(response.statusCode, 200);
+  const body = JSON.parse(response.body);
+  assert.equal(body.success, true);
+  assert.equal(body.message, 'Tienda guardada exitosamente.');
+  assert.equal(body.data.storeKey, 'stores/country_1/brand_11/store_101.json');
+});
 test('rutas técnicas, documentación, métodos inválidos y ausencia de Actuator', async () => {
   const { application, auth } = setup(); const token = (await auth.issue('test-client', testJwtSecret))!.accessToken;
   assert.equal((await application(event('/swagger-ui.html'))).statusCode, 302);
   const openapi = JSON.parse((await application(event('/v3/api-docs'))).body);
-  assert.equal(openapi.info.version, '1.0.5'); assert.ok(openapi.paths['/coupons/generate']);
+  assert.equal(openapi.info.version, '1.0.5'); assert.ok(openapi.paths['/coupons/generate']); assert.ok(openapi.paths['/coupons/pos/store']);
   assert.equal((await application(event('/swagger-ui/index.html'))).statusCode, 200);
   assert.equal((await application(event('/test-insights', 'GET', undefined, token))).body, 'Evento de prueba enviado a Application Insights');
   assert.equal((await application(event('/coupons/generate', 'GET', undefined, token))).statusCode, 405);

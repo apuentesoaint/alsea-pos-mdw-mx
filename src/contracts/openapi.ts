@@ -28,6 +28,7 @@ export function openapi() {
       binesList: { type: 'array', items: integer }, nombreEmpleado: string, restriction: string, message: string } },
     RedeemRespModel: { type: 'object', properties: { code: string } },
     TransactionStatusDTO: { type: 'object', properties: { uid: string, redeemed: { type: 'boolean' } } },
+    StoreDTO: { type: 'object', required: ['countryId', 'brandId', 'storeId'], properties: { countryId: integer, brandId: integer, storeId: integer, name: string, active: { type: 'boolean' } } },
     ApiResponseDTO: { type: 'object', properties: { uid: { ...string, nullable: true }, timestamp: string, status: integer, type: string, message: string, helpUrl: string,
       success: { type: 'boolean' }, data: { nullable: true } } },
   };
@@ -46,6 +47,7 @@ export function openapi() {
       '/coupons/validate': { post: { operationId: 'validateCoupon', ...coupon('ValidateCouponDTO', 'ValidateRespModel') } },
       '/coupons/redeem': { post: { operationId: 'redeemCoupon', ...coupon('RedeemCouponDTO', 'RedeemRespModel') } },
       '/coupons/generate': { post: { operationId: 'generateCoupon', ...coupon('GenerateCouponRequestDTO', 'GenerateCouponResponseDTO') } },
+      '/coupons/pos/store': { post: { operationId: 'saveStore', tags: ['POS'], security: [{ bearerToken: [] }], requestBody: request('StoreDTO'), responses: { '200': response('ApiResponseDTO'), '400': response('ApiResponseDTO'), '401': { description: 'No autorizado' } } } },
       '/coupons/transaction/latest': { get: { operationId: 'getLatestTransaction', tags: ['Cupon'], security: [{ bearerToken: [] }],
         parameters: ['countryId', 'brandId', 'storeId', 'couponCode'].map(name => ({ name, in: 'query', required: true, schema: name === 'couponCode' ? string : integer })), responses: { '200': response('ApiResponseDTO') } } },
       '/test-insights': { get: { operationId: 'testInsights', security: [{ bearerToken: [] }], responses: { '200': { description: 'Evento de telemetría', content: { '*/*': { schema: string } } } } } },

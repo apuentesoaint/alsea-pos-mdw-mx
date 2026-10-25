@@ -1,7 +1,7 @@
 import { legacyRuntime } from '../core/legacy-errors.js';
 import { randomUUID } from 'node:crypto';
 import { Decimal } from 'decimal.js';
-import type { CouponProvider, GenerateRequest, RedeemRequest, Transaction, TransactionRepository, ValidateRequest } from '../core/types.js';
+import type { CouponProvider, GenerateRequest, RedeemRequest, StoreRequest, Transaction, TransactionRepository, ValidateRequest } from '../core/types.js';
 import { business, messages, technical } from '../core/errors.js';
 import { evaluateDiscount, remapResult } from './discounts.js';
 import { requestContext, metric, logError } from '../core/logging.js';
@@ -86,5 +86,9 @@ export class Coupons {
     const transaction = await this.repository.latest(country, brand, store, coupon);
     return transaction ? { uid: transaction.uid, message: 'OK.', data: { uid: transaction.uid, redeemed: transaction.redemptionDate != null } }
       : { uid: null, message: 'No se encontró transacción', data: null };
+  }
+  async saveStore(request: StoreRequest) {
+    const result = await this.repository.saveStore(request);
+    return { uid: this.uuid(), message: 'Tienda guardada exitosamente.', data: result };
   }
 }

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { AppError, publicError, technical } from '../core/errors.js';
 import { stringify } from '../core/json.js';
 import { correlation, log, logError, metric, requestContext } from '../core/logging.js';
-import { body, generateBody, springInteger, redeemBody, validateBody } from '../core/validation.js';
+import { body, generateBody, springInteger, redeemBody, storeBody, validateBody } from '../core/validation.js';
 import type { Authentication } from '../domain/auth.js';
 import type { Coupons } from '../domain/coupons.js';
 import { documentation } from './documentation.js';
@@ -17,7 +17,7 @@ export interface HttpResponse { statusCode: number; headers: Record<string, stri
 export interface Invocation { awsRequestId?: string; getRemainingTimeInMillis?: () => number }
 const routes = new Map([
   ['/auth/token', 'POST'], ['/coupons/healthcheck', 'GET'], ['/coupons/validate', 'POST'], ['/coupons/redeem', 'POST'],
-  ['/coupons/generate', 'POST'], ['/coupons/transaction/latest', 'GET'], ['/test-insights', 'GET'],
+  ['/coupons/generate', 'POST'], ['/coupons/pos/store', 'POST'], ['/coupons/transaction/latest', 'GET'], ['/test-insights', 'GET'],
 ]);
 // Valores predeterminados de Spring Security conservados también en errores y rutas públicas.
 const securityHeaders = { 'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate', Pragma: 'no-cache', Expires: '0',
@@ -86,6 +86,7 @@ export function createApplication(auth: Pick<Authentication, 'issue' | 'valid'>,
             const output = path === '/coupons/validate' ? await coupons.validate(validateBody(event.body, event.isBase64Encoded))
               : path === '/coupons/redeem' ? await coupons.redeem(redeemBody(event.body, event.isBase64Encoded))
               : path === '/coupons/generate' ? await coupons.generate(generateBody(event.body, event.isBase64Encoded))
+              : path === '/coupons/pos/store' ? await coupons.saveStore(storeBody(event.body, event.isBase64Encoded))
               : await (async () => {
                 const query = event.queryStringParameters ?? {};
                 for (const name of ['countryId', 'brandId', 'storeId', 'couponCode']) if (query[name] == null) throw new HttpProblem(400, 'Bad Request', `Required parameter '${name}' is not present.`);

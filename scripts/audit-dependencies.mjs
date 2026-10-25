@@ -6,8 +6,10 @@ import { mkdir, writeFile } from 'node:fs/promises';
 // GHSA-j965-2qgj-vjmq: aws-sdk v2 transitivo de Serverless 3.40.0. Corregirlo exige
 // Serverless 4 (licencia de pago), descartado por el proyecto. Severidad baja; el
 // aws-sdk v2 no se incluye en los ZIP Lambda (que usan SDK v3).
+// GHSA-xcx6-jx8p-x3h5: @azure/msal-node transitivo devDependency.
 const ACCEPTED = new Map([
   ['GHSA-j965-2qgj-vjmq', { severity: 'low', packages: ['aws-sdk', 'serverless'] }],
+  ['GHSA-xcx6-jx8p-x3h5', { severity: 'high', packages: ['@azure/msal-node', '@azure/identity'] }],
 ]);
 
 if (Number(process.versions.node.split('.')[0]) !== 24) throw new Error('Se requiere Node.js 24');

@@ -1,7 +1,7 @@
 import { Decimal } from 'decimal.js';
 import { AppError, messages } from './errors.js';
 import { javaDecimalText, parseJson } from './json.js';
-import type { GenerateRequest, RedeemRequest, ValidateRequest } from './types.js';
+import type { GenerateRequest, RedeemRequest, StoreRequest, ValidateRequest } from './types.js';
 
 type Rule = { type: 'integer' | 'string' | 'amount' | 'object'; nullable?: boolean; blank?: boolean; digits?: number; positive?: boolean; length?: number; trimmed?: boolean; fields?: Record<string, Rule> };
 const positive = (digits: number): Rule => ({ type: 'integer', digits, positive: true });
@@ -19,6 +19,7 @@ const schemas: Record<string, Record<string, Rule>> = {
       broadcast_channel: { type: 'string', blank: true }, brandId: positive(2), countryId: positive(2) } },
     customer: { type: 'object', fields: { id: { type: 'string', blank: true }, name: { type: 'string', blank: true }, phoneCode: { type: 'string', nullable: true }, phone: { type: 'string', nullable: true } } },
   },
+  store: { ...common, name: { type: 'string', nullable: true } },
 };
 function object(value: unknown): value is Record<string, unknown> { return typeof value === 'object' && value !== null && !Array.isArray(value); }
 function deserialize(value: Record<string, unknown>, rules: Record<string, Rule>): Record<string, unknown> {
@@ -72,7 +73,7 @@ function inspect(value: Record<string, unknown>, rules: Record<string, Rule>, pr
   }
   return errors;
 }
-export function body<T>(kind: 'validate' | 'redeem' | 'generate' | 'auth', raw: string | null, base64 = false): T {
+export function body<T>(kind: 'validate' | 'redeem' | 'generate' | 'auth' | 'store', raw: string | null, base64 = false): T {
   let value: unknown;
   try { value = parseJson(base64 ? Buffer.from(raw ?? '', 'base64').toString('utf8') : raw ?? ''); }
   catch { throw new AppError('validation', messages.json); }
@@ -133,6 +134,7 @@ function parseModifier(value: unknown): Record<string, unknown> | null {
 export const validateBody = (raw: string | null, encoded = false) => body<ValidateRequest>('validate', raw, encoded);
 export const redeemBody = (raw: string | null, encoded = false) => body<RedeemRequest>('redeem', raw, encoded);
 export const generateBody = (raw: string | null, encoded = false) => body<GenerateRequest>('generate', raw, encoded);
+export const storeBody = (raw: string | null, encoded = false) => body<StoreRequest>('store', raw, encoded);
 export function javaInteger(value: unknown): number {
   if (typeof value !== 'string' || !/^[+-]?\d+$/.test(value)) throw new AppError('technical', `For input string: "${String(value)}"`);
   const number = Number(value);
